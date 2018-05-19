@@ -58,7 +58,7 @@ c.DockerSpawner.notebook_dir = notebook_dir
 # notebook directory in the container
 # c.DockerSpawner.volumes = { 'jupyterhub-user-{username}': notebook_dir, 'shared': '/srv/nbgrader/exchange' }
 # c.DockerSpawner.volumes = { 'jupyterhub-user-{username}': notebook_dir}
-c.DockerSpawner.volumes = { '/srv/data/userhomedir/{username}/': notebook_dir,'/srv/data/exchange/':'/srv/nbgrader/exchange'}
+c.DockerSpawner.volumes = { '/srv/data/userhomedir/{username}/': notebook_dir,'/srv/data/exchange/':'/srv/nbgrader/exchange','/srv/data/tmp/':'/srv/tmp'}
 
 
 
