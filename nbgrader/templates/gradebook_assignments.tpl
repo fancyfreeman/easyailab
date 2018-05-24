@@ -13,12 +13,12 @@
 {%- block table_header -%}
 <tr>
   <th>Assignment ID</th>
-  <th class="text-center">Due Date</th>
-  <th class="text-center">Submissions</th>
-  <th class="text-center">Score</th>
+  <th class="text-center">到期日期</th>
+  <th class="text-center">提交</th>
+  <th class="text-center">得分</th>
 </tr>
 {%- endblock -%}
 
 {%- block table_body -%}
-<tr><td colspan="4">Loading, please wait...</td></tr>
+<tr><td colspan="4">正在加载，请稍后...</td></tr>
 {%- endblock -%}

@@ -6,7 +6,7 @@ Not Authorized
 
 {%- block body -%}
 <div class="panel-body">
-Sorry, you are not authorized to access the formgrader.
+抱歉，您没有访问课程管理权限。
 <span id="error-{{ error_code }}"></span>
 </div>
 {%- endblock -%}

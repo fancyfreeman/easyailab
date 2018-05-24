@@ -85,7 +85,7 @@ function toggle_name(on) {
     </div>
   </nav>
   <script type="text/javascript">
-  $('span.glyphicon.name-hidden').tooltip({title: "Show student name", placement: "bottom", trigger: "hover"});
-  $('span.glyphicon.name-shown').tooltip({title: "Hide student name", placement: "bottom", trigger: "hover"});
+  $('span.glyphicon.name-hidden').tooltip({title: "显示学生姓名", placement: "bottom", trigger: "hover"});
+  $('span.glyphicon.name-shown').tooltip({title: "隐藏学生姓名", placement: "bottom", trigger: "hover"});
   </script>
 {% endmacro %}

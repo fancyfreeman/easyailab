@@ -13,22 +13,22 @@
 {%- block table_header -%}
 <tr>
   <th>Name</th>
-  <th class="text-center">Student ID</th>
+  <th class="text-center">学生 ID</th>
   <th class="text-center">Email</th>
   <th class="text-center">Overall Score</th>
-  <th class="text-center no-sort">Edit Student</th>
+  <th class="text-center no-sort">编辑学生</th>
 </tr>
 {%- endblock -%}
 
 {%- block table_body -%}
-<tr><td colspan="5">Loading, please wait...</td></tr>
+<tr><td colspan="5">正在加载，请稍等...</td></tr>
 {%- endblock -%}
 
 {%- block table_footer -%}
 <tr>
   <td colspan="5">
     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-    <a href="#" onClick="createStudentModal();">Add new student...</a>
+    <a href="#" onClick="createStudentModal();">添加学生...</a>
   </td>
 </tr>
 {%- endblock -%}
