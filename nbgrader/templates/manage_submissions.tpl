@@ -9,18 +9,18 @@ var assignment_id = "{{ assignment_id }}";
 {%- endblock head -%}
 
 {%- block title -%}
-Manage Submissions
+管理作业提交
 {%- endblock -%}
 
 {%- block sidebar -%}
-<li role="presentation" class="active"><a href="{{ base_url }}/formgrader/manage_assignments">Manage Assignments</a></li>
-<li role="presentation"><a href="{{ base_url }}/formgrader/gradebook">Manual Grading</a></li>
-<li role="presentation"><a href="{{ base_url }}/formgrader/manage_students">Manage Students</a></li>
+<li role="presentation" class="active"><a href="{{ base_url }}/formgrader/manage_assignments">管理作业提交</a></li>
+<li role="presentation"><a href="{{ base_url }}/formgrader/gradebook">手动评分</a></li>
+<li role="presentation"><a href="{{ base_url }}/formgrader/manage_students">管理学生</a></li>
 {%- endblock -%}
 
 {%- block breadcrumbs -%}
 <ol class="breadcrumb">
-  <li><a href="{{ base_url }}/formgrader/manage_assignments">Assignments</a></li>
+  <li><a href="{{ base_url }}/formgrader/manage_assignments">作业</a></li>
   <li class="active">{{ assignment_id }}</li>
 </ol>
 {%- endblock -%}
@@ -31,17 +31,15 @@ Manage Submissions
     <div class="panel-heading" role="tab" id="headingOne">
       <h4 class="panel-title">
         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-          Instructions (click to expand)
+          帮助 (点击展开)
         </a>
       </h4>
     </div>
     <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
       <div class="panel-body">
         <p>
-          <b>Note:</b> Here you can autograde individual students' submissions by
-          clicking on the autograde icons below. If you want to autograde
-          all submissions at once, you will need to do this via the
-          <a target="_blank" href="{{ base_url }}/terminals/1">command line</a>:
+          <b>提示:</b> 点击下方的自动评分图标，给每一位学生的作业进行评分，如果想对所有学生评分，请使用
+          <a target="_blank" href="{{ base_url }}/terminals/1">命令行</a>:
         </p>
         <p>
         <pre>
@@ -56,18 +54,18 @@ nbgrader autograde "{{ assignment_id }}"</pre>
 
 {%- block table_header -%}
 <tr>
-  <th>Student Name</th>
-  <th class="text-center">Student ID</th>
-  <th class="text-center">Timestamp</th>
-  <th class="text-center">Status</th>
-  <th class="text-center">Score</th>
-  <th class="text-center no-sort">Autograde</th>
+  <th>学生姓名</th>
+  <th class="text-center">学生 ID</th>
+  <th class="text-center">时间</th>
+  <th class="text-center">状态</th>
+  <th class="text-center">得分</th>
+  <th class="text-center no-sort">自动评分</th>
 </tr>
 {%- endblock -%}
 
 {%- block table_body -%}
 <tr>
-  <td>Loading, please wait...</td>
+  <td>正在加载，请稍等...</td>
   <td></td>
   <td></td>
   <td></td>

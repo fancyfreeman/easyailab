@@ -14,13 +14,13 @@
       <div class="panel-heading">
         <h4 class="panel-title">
           <span>{{ resources.notebook_id }}</span>
-          <span class="pull-right">Submission {{ resources.index + 1 }} / {{ resources.total }}</span>
+          <span class="pull-right">提交 {{ resources.index + 1 }} / {{ resources.total }}</span>
         </h4>
       </div>
       <div class="panel-body">
         <div id="notebook" class="border-box-sizing">
           <div class="container" id="notebook-container">
-            Error: Submission notebook file not found: {{ resources.filename }}
+            错误: 提交的 notebook 文件未找到: {{ resources.filename }}
           </div>
         </div>
       </div>

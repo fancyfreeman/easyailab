@@ -17,14 +17,14 @@ var student_id = "{{ student_id }}";
 
 {%- block table_header -%}
 <tr>
-  <th>Assignment ID</th>
-  <th class="text-center">Overall Score</th>
+  <th>作业 ID</th>
+  <th class="text-center">总得分</th>
   <th class="text-center">Code Score</th>
   <th class="text-center">Written Score</th>
-  <th class="text-center">Needs Manual Grade?</th>
+  <th class="text-center">需要手动评分吗？</th>
 </tr>
 {%- endblock -%}
 
 {%- block table_body -%}
-<tr><td colspan="5">Loading, please wait...</td></tr>
+<tr><td colspan="5">正在加载，请稍等...</td></tr>
 {%- endblock -%}

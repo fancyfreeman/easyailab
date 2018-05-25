@@ -1,7 +1,7 @@
 {%- extends 'base.tpl' -%}
 
 {%- block title -%}
-Manage Students
+管理学生
 {%- endblock -%}
 
 {%- block sidebar -%}

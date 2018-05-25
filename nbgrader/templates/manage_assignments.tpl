@@ -9,13 +9,13 @@ var url_prefix = "{{ url_prefix }}";
 {%- endblock -%}
 
 {%- block title -%}
-Manage Assignments
+管理作业
 {%- endblock -%}
 
 {%- block sidebar -%}
-<li role="presentation" class="active"><a href="{{ base_url }}/formgrader/manage_assignments">Manage Assignments</a></li>
-<li role="presentation"><a href="{{ base_url }}/formgrader/gradebook">Manual Grading</a></li>
-<li role="presentation"><a href="{{ base_url }}/formgrader/manage_students">Manage Students</a></li>
+<li role="presentation" class="active"><a href="{{ base_url }}/formgrader/manage_assignments">作业管理</a></li>
+<li role="presentation"><a href="{{ base_url }}/formgrader/gradebook">手动评分</a></li>
+<li role="presentation"><a href="{{ base_url }}/formgrader/manage_students">学生管理</a></li>
 {%- endblock -%}
 
 {%- block breadcrumbs -%}
@@ -93,7 +93,7 @@ for instructions.
 {%- endblock -%}
 
 {%- block table_body -%}
-<tr><td colspan="9">Loading, please wait...</td></tr>
+<tr><td colspan="9">正在加载，请稍等...</td></tr>
 {%- endblock -%}
 
 {%- block table_footer -%}

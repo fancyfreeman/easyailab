@@ -10,7 +10,7 @@ var assignment_id = "{{ assignment_id }}";
 
 {%- block breadcrumbs -%}
 <ol class="breadcrumb">
-  <li><a href="{{ base_url }}/formgrader/gradebook">Manual Grading</a></li>
+  <li><a href="{{ base_url }}/formgrader/gradebook">手动评分</a></li>
   <li class="active">{{ assignment_id }}</li>
 </ol>
 {%- endblock -%}
@@ -26,5 +26,5 @@ var assignment_id = "{{ assignment_id }}";
 {%- endblock -%}
 
 {%- block table_body -%}
-<tr><td colspan="5">Loading, please wait...</td></tr>
+<tr><td colspan="5">正在加载，请稍后...</td></tr>
 {%- endblock -%}
