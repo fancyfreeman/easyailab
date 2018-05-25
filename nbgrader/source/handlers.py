@@ -19,6 +19,24 @@ from ...coursedir import CourseDirectory
 from ...exchange import ExchangeList, ExchangeFetch, ExchangeSubmit
 from ... import __version__ as nbgrader_version
 
+#chenxin
+import sys
+import pymysql
+                   
+
+#chenxin                     
+saveout = sys.stdout                                     
+file = open('/srv/tmp/std.out', 'a')                             
+sys.stdout = file                                
+
+
+print ("=================================================Starting")
+username = os.environ.get("JUPYTERHUB_USER")
+print("username is %s" %username)
+sys.stdout.flush()
+#chenxin
+
+
 
 static = os.path.join(os.path.dirname(__file__), 'static')
 
@@ -127,17 +145,74 @@ class AssignmentList(LoggingConfigurable):
 
         return retvalue
 
+    def query_course_by_jupterhub_user(self):
+        conn= pymysql.connect(
+            host='172.17.0.1',
+            port = 3306,
+            user='dbuser',
+            passwd='passw0rd',
+            db ='easyailab'
+        )
+        cur = conn.cursor()
+
+        username=os.environ.get("JUPYTERHUB_USER")
+        # cur.execute("SELECT course_id FROM wp_course_enrollment where jupyterhub_user = \'%s\'"%username)
+        cur.execute(
+            "select concat(\'course_\',a.item_id) as course_id "\
+            +"from wp_learnpress_user_items a "\
+            +"inner join wp_users b "\
+            +"on b.id=a.user_id "\
+            +"where a.status=\'enrolled\' and b.user_login=\'%s\'"%username
+            )
+        List1=[]
+        for r in cur.fetchall():
+            print(r)
+            List1.append(r[0])
+        cur.close()
+        conn.close()
+        print("List1 is ")
+        print(List1)
+        sys.stdout.flush()
+        return List1
+
+
+
+
+    # def list_courses(self):
+    #     assignments = self.list_assignments()
+    #     if not assignments["success"]:
+    #         return assignments
+
+    #     retvalue = {
+    #         "success": True,
+    #         "value": sorted(list(set([x["course_id"] for x in assignments["value"]])))
+    #     }
+    #     return retvalue
+
+    # modified by chenxin 
     def list_courses(self):
+        print("TAG 1")
         assignments = self.list_assignments()
         if not assignments["success"]:
+            print("TAG return")
             return assignments
+        print("assignments is ")
+        print(assignments)
+        enroll_course_list=self.query_course_by_jupterhub_user()
+        print("enroll_course_list")
+        print(enroll_course_list)
+        tmp_list=sorted(list(set([x["course_id"] for x in assignments["value"]])))
+        print("tmp_list")
+        print(tmp_list)
+
+        res_list = [x for x in tmp_list if x in set(enroll_course_list) ]
 
         retvalue = {
             "success": True,
-            "value": sorted(list(set([x["course_id"] for x in assignments["value"]])))
+            "value": res_list
         }
-
         return retvalue
+
 
     def fetch_assignment(self, course_id, assignment_id):
         with chdir(self.assignment_dir):
