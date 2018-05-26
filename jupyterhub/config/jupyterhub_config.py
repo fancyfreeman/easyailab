@@ -23,7 +23,7 @@ c.JupyterHub.port = 443
 # c.Authenticator.whitelist = {'instructor1', 'student1','admin'}
 
 # set of users who can administer the Hub itself
-c.Authenticator.admin_users = {'admin','instructor1'}
+c.Authenticator.admin_users = {'admin','instructor1','instructor2'}
 
 
 #from oauthenticator.github import LocalGitHubOAuthenticator
