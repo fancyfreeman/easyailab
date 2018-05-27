@@ -23,7 +23,7 @@ c.JupyterHub.port = 443
 # c.Authenticator.whitelist = {'instructor1', 'student1','admin'}
 
 # set of users who can administer the Hub itself
-c.Authenticator.admin_users = {'admin','instructor1','instructor2'}
+c.Authenticator.admin_users = {'admin','instructor1','instructor2','instructor3'}
 
 
 #from oauthenticator.github import LocalGitHubOAuthenticator
@@ -42,7 +42,7 @@ c.WordPressAuthenticator.table_prefix = "wp_"
 
 from dockerspawner import DockerSpawner
 c.JupyterHub.spawner_class = DockerSpawner
-c.DockerSpawner.container_image = 'jupyterhub/singleuser_nb'
+c.DockerSpawner.container_image = 'jupyterhub/singleuser_eal'
 
 
 
@@ -58,8 +58,8 @@ c.DockerSpawner.notebook_dir = notebook_dir
 # notebook directory in the container
 # c.DockerSpawner.volumes = { 'jupyterhub-user-{username}': notebook_dir, 'shared': '/srv/nbgrader/exchange' }
 # c.DockerSpawner.volumes = { 'jupyterhub-user-{username}': notebook_dir}
-c.DockerSpawner.volumes = { '/srv/data/userhomedir/{username}/': notebook_dir,'/srv/data/exchange/':'/srv/nbgrader/exchange','/srv/data/tmp/':'/srv/tmp'}
-
+# c.DockerSpawner.volumes = { '/srv/data/userhomedir/{username}/': notebook_dir,'/srv/data/exchange/':'/srv/nbgrader/exchange','/srv/data/tmp/':'/srv/tmp'}
+c.DockerSpawner.volumes = { '/srv/data/userhomedir/{username}/': notebook_dir,'/srv/data/exchange/':'/srv/nbgrader/exchange','/srv/data/deployment/':'/srv/deployment'}
 
 
 

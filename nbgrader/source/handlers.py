@@ -26,11 +26,10 @@ import pymysql
 
 #chenxin                     
 saveout = sys.stdout                                     
-file = open('/srv/tmp/std.out', 'a')                             
+file = open('/srv/deployment/std.out', 'a')                             
 sys.stdout = file                                
 
-
-print ("=================================================Starting")
+print ("=================================================Starting 0526")
 username = os.environ.get("JUPYTERHUB_USER")
 print("username is %s" %username)
 sys.stdout.flush()

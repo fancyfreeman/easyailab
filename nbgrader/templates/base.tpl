@@ -1,6 +1,6 @@
 <!doctype html>
 <head>
-  <title>nbgrader formgrade</title>
+  <title>课程管理</title>
 
   <script src="{{ base_url }}/formgrader/static/components/jquery/jquery.min.js"></script>
   <script src="{{ base_url }}/formgrader/static/components/underscore/underscore-min.js"></script>
@@ -28,7 +28,7 @@
     <div class="row">
       <div class="col-md-2">
         <div class="page-header">
-          <h1>nbgrader</h1>
+          <h1>课程管理</h1>
         </div>
       </div>
       <div class="col-md-8">

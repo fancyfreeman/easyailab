@@ -9,5 +9,7 @@ import gettext
 
 # Set up message catalog access
 base_dir = os.path.realpath(os.path.join(__file__, '..', '..'))
-trans = gettext.translation('notebook', localedir=os.path.join(base_dir, 'notebook/i18n'), languages=['zh_CN'], lback=True)
+# trans = gettext.translation('notebook', localedir=os.path.join(base_dir, 'notebook/i18n'), fallback=True)
+trans = gettext.translation('notebook', localedir=os.path.join(base_dir, 'notebook/i18n'),languages=['zh_CN'], fallback=True)
+trans.install()
 _ = trans.gettext

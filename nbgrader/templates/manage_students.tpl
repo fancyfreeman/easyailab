@@ -6,16 +6,16 @@
 
 {%- block breadcrumbs -%}
 <ol class="breadcrumb">
-  <li class="active">Students</li>
+  <li class="active">学生列表</li>
 </ol>
 {%- endblock -%}
 
 {%- block table_header -%}
 <tr>
-  <th>Name</th>
+  <th>学生姓名</th>
   <th class="text-center">学生 ID</th>
   <th class="text-center">Email</th>
-  <th class="text-center">Overall Score</th>
+  <th class="text-center">总得分</th>
   <th class="text-center no-sort">编辑学生</th>
 </tr>
 {%- endblock -%}

@@ -11,7 +11,7 @@ var notebook_id = "{{ notebook_id }}";
 
 {%- block breadcrumbs -%}
 <ol class="breadcrumb">
-  <li><a href="{{ base_url }}/formgrader/gradebook">Manual Grading</a></li>
+  <li><a href="{{ base_url }}/formgrader/gradebook">手动评分</a></li>
   <li><a href="{{ base_url }}/formgrader/gradebook/{{ assignment_id }}">{{ assignment_id }}</a></li>
   <li class="active">{{ notebook_id }}</li>
 </ol>
@@ -21,12 +21,12 @@ var notebook_id = "{{ notebook_id }}";
 <tr>
   <th></th>
   <th>Submission ID</th>
-  <th class="text-center">Overall Score</th>
-  <th class="text-center">Code Score</th>
-  <th class="text-center">Written Score</th>
-  <th class="text-center">Needs Manual Grade?</th>
-  <th class="text-center">Tests Failed?</th>
-  <th class="text-center">Flagged?</th>
+  <th class="text-center">总得分</th>
+  <th class="text-center">程序得分</th>
+  <th class="text-center">手工得分</th>
+  <th class="text-center">是否需要手动评分?</th>
+  <th class="text-center">测试失败?</th>
+  <th class="text-center">标记?</th>
 </tr>
 {%- endblock -%}
 

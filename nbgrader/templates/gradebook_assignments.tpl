@@ -6,13 +6,13 @@
 
 {%- block breadcrumbs -%}
 <ol class="breadcrumb">
-  <li class="active">Manual Grading</li>
+  <li class="active">手动评分</li>
 </ol>
 {%- endblock -%}
 
 {%- block table_header -%}
 <tr>
-  <th>Assignment ID</th>
+  <th>作业ID</th>
   <th class="text-center">到期日期</th>
   <th class="text-center">提交</th>
   <th class="text-center">得分</th>
