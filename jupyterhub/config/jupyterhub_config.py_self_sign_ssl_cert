@@ -14,12 +14,9 @@ def my_script_hook(spawner):
 c.Spawner.pre_spawn_hook = my_script_hook
 
 
-# Force the proxy to only listen to connections to 127.0.0.1 default at 8000
-c.JupyterHub.ip = '127.0.0.1'
-
-# c.JupyterHub.ssl_key = 'jupyterhub.key'
-# c.JupyterHub.ssl_cert = 'jupyterhub.crt'
-# c.JupyterHub.port = 443
+c.JupyterHub.ssl_key = 'jupyterhub.key'
+c.JupyterHub.ssl_cert = 'jupyterhub.crt'
+c.JupyterHub.port = 443
 
 
 # set of users allowed to use the Hub
