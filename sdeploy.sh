@@ -10,6 +10,12 @@ cp ./wordpress/config/default-constants.php /home/wwwroot/default/wp-includes/de
 cp ./wordpress/learnPress/zh_CN.mo          /home/wwwroot/default/wp-content/plugins/learnpress/languages/learnpress-zh_CN.mo
 cp ./wordpress/learnPress/zh_CN.po          /home/wwwroot/default/wp-content/plugins/learnpress/languages/learnpress-zh_CN.po
 
+#avada
+cp -rf ./wordpress/avada/google/s           /home/wwwroot/default/
+cp ./wordpress/avada/source/class-avada-google-fonts.php /home/wwwroot/default/wp-content/themes/Avada/includes/class-avada-google-fonts.php
+
+
+
 #php
 cp ./php/config/php.ini      /usr/local/php/etc/php.ini
 

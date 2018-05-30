@@ -317,7 +317,7 @@ final class Avada_Google_Fonts {
 			array(
 				'family' => str_replace( '%2B', '+', urlencode( implode( '|', $link_fonts ) ) ),
 				'subset' => urlencode( implode( ',', $this->subsets ) ),
-			), 'https://fonts.googleapis.com/css'
+			), 'https://easyailab.cn/s/googlecss.css'   //https://fonts.googleapis.com/css chenxin
 		);
 	}
 
