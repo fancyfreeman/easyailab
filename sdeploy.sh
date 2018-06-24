@@ -13,7 +13,7 @@ cp ./wordpress/learnPress/zh_CN.po          /home/wwwroot/default/wp-content/plu
 #avada
 cp -rf ./wordpress/avada/google/s           /home/wwwroot/default/
 cp ./wordpress/avada/source/class-avada-google-fonts.php /home/wwwroot/default/wp-content/themes/Avada/includes/class-avada-google-fonts.php
-
+cp ./wordpress/avada/source/functions.php   /home/wwwroot/default/wp-content/themes/Avada/functions.php
 
 
 #php
