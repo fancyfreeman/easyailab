@@ -28,7 +28,7 @@ cp ./nbgrader/templates/formgrader/main.js     /opt/conda/share/jupyter/nbextens
 
 #notebook
 cp ./notebook/LC_MESSAGES/*.*  /opt/conda/lib/python3.6/site-packages/notebook/i18n/zh_CN/LC_MESSAGES/
-
+cp ./notebook/LC_MESSAGES/*.cfg  /opt/conda/lib/python3.6/site-packages/notebook/i18n/
 
 
 echo "End"
