@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Package Name\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-05-10 10:29+0700\n"
-"PO-Revision-Date: 2018-07-08 10:56+0800\n"
+"PO-Revision-Date: 2018-07-08 11:24+0800\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1456,6 +1456,7 @@ msgstr ""
 #: inc/lp-template-functions.php:2940
 msgid "Fill out the form and send us your requesting."
 msgstr ""
+"请填写开课教师申请表单并提交，我们收到申请后，将在三个工作日内处理并联系您。"
 
 #: inc/lp-template-functions.php:3199 inc/custom-post-types/quiz.php:385
 #, php-format
@@ -6663,7 +6664,7 @@ msgstr ""
 #: inc/shortcodes/class-lp-shortcode-become-a-teacher.php:123
 #: templates/global/become-teacher-form/button.php:19
 msgid "Submit"
-msgstr ""
+msgstr "提交"
 
 #: inc/shortcodes/class-lp-shortcode-course-curriculum.php:44
 msgid "Invalid course."
