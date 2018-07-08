@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Package Name\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-05-10 10:29+0700\n"
-"PO-Revision-Date: 2018-07-08 10:25+0800\n"
+"PO-Revision-Date: 2018-07-08 10:35+0800\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -7952,7 +7952,7 @@ msgstr ""
 
 #: templates/single-course/progress.php:37
 msgid "Items completed"
-msgstr ""
+msgstr "已完成项"
 
 #: templates/single-course/progress.php:41
 #, php-format
@@ -7975,7 +7975,7 @@ msgstr "已注册课程"
 #: templates/single-course/remaining-time.php:19
 #, php-format
 msgid "You have %s remaining for the course"
-msgstr ""
+msgstr "你还有 %s 完成此课程"
 
 #: templates/single-course/students.php:29
 #, php-format
