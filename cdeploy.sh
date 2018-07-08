@@ -27,8 +27,15 @@ cp ./nbgrader/templates/formgrader/main.js     /opt/conda/share/jupyter/nbextens
 
 
 #notebook
-cp ./notebook/LC_MESSAGES/*.*  /opt/conda/lib/python3.6/site-packages/notebook/i18n/zh_CN/LC_MESSAGES/
 cp ./notebook/LC_MESSAGES/*.cfg  /opt/conda/lib/python3.6/site-packages/notebook/i18n/
+cp ./notebook/LC_MESSAGES/*.po   /opt/conda/lib/python3.6/site-packages/notebook/i18n/zh_CN/LC_MESSAGES/
+cd /opt/conda/lib/python3.6/site-packages/notebook/i18n/zh_CN/LC_MESSAGES
+pybabel compile -D notebook -f -l zh_CN -i notebook.po -o notebook.mo
+pybabel compile -D notebook -f -l zh_CN -i nbui.po -o nbui.mo
+po2json -p -F -f jed1.x -d nbjs nbjs.po nbjs.json
 
+cd /srv/deployment/github/easyailab
+cp ./notebook/logo.png /opt/conda/lib/python3.6/site-packages/notebook/static/base/images/logo.png
+cp ./notebook/logo.png /opt/conda/pkgs/notebook-5.4.1-py36_0/lib/python3.6/site-packages/notebook/static/base/images/logo.png
 
-echo "End"
+echo "End cdeploy"

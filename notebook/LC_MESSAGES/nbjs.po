@@ -125,7 +125,7 @@ msgstr ""
 #: notebook/static/notebook/js/main.min.js:33885
 #: notebook/static/tree/js/main.min.js:10909
 msgid "Attachments"
-msgstr ""
+msgstr "附件"
 
 #: notebook/static/base/js/dialog.js:283
 #: notebook/static/notebook/js/main.min.js:21742
@@ -1155,7 +1155,7 @@ msgstr ""
 #: notebook/static/notebook/js/main.min.js:33686
 #: notebook/static/notebook/js/main.min.js:33704
 msgid "Edit Metadata"
-msgstr ""
+msgstr "编辑元数据"
 
 #: notebook/static/notebook/js/celltoolbarpresets/rawcell.js:16
 #: notebook/static/notebook/js/main.min.js:33724
@@ -1187,7 +1187,7 @@ msgstr ""
 #: notebook/static/notebook/js/celltoolbarpresets/rawcell.js:81
 #: notebook/static/notebook/js/main.min.js:33789
 msgid "Raw Cell Format"
-msgstr ""
+msgstr "原始单元格格式"
 
 #: notebook/static/notebook/js/celltoolbarpresets/slideshow.js:15
 #: notebook/static/notebook/js/main.min.js:33809
@@ -1222,7 +1222,7 @@ msgstr ""
 #: notebook/static/notebook/js/celltoolbarpresets/slideshow.js:41
 #: notebook/static/notebook/js/main.min.js:33835
 msgid "Slideshow"
-msgstr ""
+msgstr "幻灯片显示"
 
 #: notebook/static/notebook/js/celltoolbarpresets/attachments.js:32
 #: notebook/static/notebook/js/main.min.js:33871
