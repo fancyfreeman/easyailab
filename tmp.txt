@@ -1,0 +1,43 @@
+https://viewer.easyailab.cn/url/www.easyailab.cn/courses/course_1278/source/exp01/intro_to_pandas.ipynb
+
+
+https://www.easyailab.cn/courses/course_1278/source/exp01/intro_to_pandas.ipynb
+
+
+./letsencrypt-auto certonly  --standalone -d www.easyailab.cn -d easyailab.cn -d hub.easyailab.cn -d viewer.easyailab.cn
+
+
+./letsencrypt-auto certonly --no-self-upgrade --standalone -d www.easyailab.cn -d easyailab.cn -d hub.easyailab.cn -d viewer.easyailab.cn
+
+<a href="#nbextensions_configurator" data-toggle="tab">Nbextensions</a>
+
+
+
+<a href="https://cn.wordpress.org/" title="基于WordPress" tabindex="-1">基于WordPress</a>
+
+./opt/conda/lib/python3.6/site-packages/notebook/static/base/images/logo.png
+./opt/conda/pkgs/notebook-5.4.1-py36_0/lib/python3.6/site-packages/notebook/static/base/images/logo.png
+
+
+cp /opt/conda/lib/python3.6/site-packages/notebook/static/base/images/logo.png /opt/conda/lib/python3.6/site-packages/notebook/static/base/images/logo_old.png
+cp /opt/conda/pkgs/notebook-5.4.1-py36_0/lib/python3.6/site-packages/notebook/static/base/images/logo.png /opt/conda/pkgs/notebook-5.4.1-py36_0/lib/python3.6/site-packages/notebook/static/base/images/logo_old.png
+
+
+
+
+select concat('course_',a.item_id) as course_id 
+from wp_learnpress_user_items a 
+inner join wp_users b 
+on b.id=a.user_id 
+where a.status='enrolled' and b.user_login='student'
+
+
+select post_title,post_name
+from wp_posts
+where post_type='lp_course'
+
+
+grep -rnl "wordpress-logo.svg" *.css
+
+find -type f -name '*.css'|xargs grep -l 'wordpress-logo.svg'
+

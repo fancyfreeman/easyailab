@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Package Name\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-05-10 10:29+0700\n"
-"PO-Revision-Date: 2018-05-30 00:25+0800\n"
+"PO-Revision-Date: 2018-07-08 10:25+0800\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -2085,7 +2085,7 @@ msgstr ""
 #: inc/admin/class-lp-setup-wizard.php:72
 msgctxt "static-page"
 msgid "LP Courses"
-msgstr ""
+msgstr "所有课程"
 
 #: inc/admin/class-lp-setup-wizard.php:73
 msgctxt "static-page"
@@ -2384,7 +2384,7 @@ msgstr ""
 #: inc/admin/views/statistics/general.php:63 inc/course/abstract-course.php:724
 #: inc/custom-post-types/course.php:1368
 msgid "Free"
-msgstr ""
+msgstr "免费"
 
 #: inc/admin/lp-admin-functions.php:1207
 #: inc/admin/views/statistics/orders.php:63
@@ -4740,7 +4740,7 @@ msgstr ""
 #: inc/course/abstract-course.php:1186
 #, php-format
 msgid "%d of %d items completed"
-msgstr ""
+msgstr "%d of %d 项已完成"
 
 #: inc/course/abstract-course.php:1189 inc/course/abstract-course.php:1191
 #, php-format
@@ -7961,7 +7961,7 @@ msgstr ""
 
 #: templates/single-course/progress.php:55
 msgid "Course results"
-msgstr ""
+msgstr "课程进度"
 
 #: templates/single-course/progress.php:79
 #, php-format
@@ -7970,7 +7970,7 @@ msgstr ""
 
 #: templates/single-course/remaining-time.php:16
 msgid "Enrolled"
-msgstr ""
+msgstr "已注册课程"
 
 #: templates/single-course/remaining-time.php:19
 #, php-format
@@ -7985,7 +7985,7 @@ msgstr[0] ""
 
 #: templates/single-course/buttons/enroll.php:32
 msgid "Enroll"
-msgstr ""
+msgstr "注册课程"
 
 #: templates/single-course/buttons/finish.php:22
 msgid "confirm-finish-course"
