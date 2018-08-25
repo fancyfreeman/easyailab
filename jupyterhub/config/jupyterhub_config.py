@@ -47,7 +47,8 @@ from dockerspawner import DockerSpawner
 c.JupyterHub.spawner_class = DockerSpawner
 c.DockerSpawner.container_image = 'jupyterhub/singleuser_eal'
 
-
+c.Spawner.mem_limit = '500M'
+c.SystemdSpawner.cpu_limit = 0.5
 
 # Explicitly set notebook directory because we'll be mounting a host volume to
 # it.  Most jupyter/docker-stacks *-notebook images run the Notebook server as

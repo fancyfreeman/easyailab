@@ -1,753 +1,1108 @@
 <?php
+
+if ( fusion_is_element_enabled( 'fusion_recent_posts' ) ) {
+
+	if ( ! class_exists( 'FusionSC_RecentPosts' ) ) {
+		/**
+		 * Shortcode class.
+		 *
+		 * @package fusion-builder
+		 * @since 1.0
+		 */
+		class FusionSC_RecentPosts extends Fusion_Element {
+
+			/**
+			 * Recent Posts element counter.
+			 *
+			 * @access private
+			 * @since 1.5.2
+			 * @var int
+			 */
+			private $recent_posts_counter = 1;
+
+			/**
+			 * An array of the shortcode arguments.
+			 *
+			 * @access protected
+			 * @since 1.0
+			 * @var array
+			 */
+			protected $args;
+
+			/**
+			 * An array of meta settings.
+			 *
+			 * @access private
+			 * @since 1.0
+			 * @var array
+			 */
+			private $meta_info_settings = array();
+
+			/**
+			 * Constructor.
+			 *
+			 * @access public
+			 * @since 1.0
+			 */
+			public function __construct() {
+				parent::__construct();
+				add_filter( 'fusion_attr_recentposts-shortcode', array( $this, 'attr' ) );
+				add_filter( 'fusion_attr_recentposts-shortcode-section', array( $this, 'section_attr' ) );
+				add_filter( 'fusion_attr_recentposts-shortcode-column', array( $this, 'column_attr' ) );
+				add_filter( 'fusion_attr_recentposts-shortcode-content', array( $this, 'content_attr' ) );
+				add_filter( 'fusion_attr_recentposts-shortcode-slideshow', array( $this, 'slideshow_attr' ) );
+				add_filter( 'fusion_attr_recentposts-shortcode-img', array( $this, 'img_attr' ) );
+				add_filter( 'fusion_attr_recentposts-shortcode-img-link', array( $this, 'link_attr' ) );
+
+				add_shortcode( 'fusion_recent_posts', array( $this, 'render' ) );
+
+			}
+
+			/**
+			 * Render the shortcode
+			 *
+			 * @access public
+			 * @since 1.0
+			 * @param  array  $args    Shortcode parameters.
+			 * @param  string $content Content between shortcode.
+			 * @return string          HTML output.
+			 */
+			public function render( $args, $content = '' ) {
+
+				global $fusion_settings;
+
+				$defaults = FusionBuilder::set_shortcode_defaults(
+					array(
+						'hide_on_mobile'      => fusion_builder_default_visibility( 'string' ),
+						'class'               => '',
+						'id'                  => '',
+						'pull_by'             => '',
+						'cat_id'              => '',
+						'cat_slug'            => '',
+						'tag_slug'            => '',
+						'exclude_tags'        => '',
+						'columns'             => 3,
+						'content_alignment'   => '',
+						'excerpt'             => 'no',
+						'exclude_cats'        => '',
+						'excerpt_length'      => '',
+						'excerpt_words'       => '15', // Deprecated.
+						'hover_type'          => 'none',
+						'layout'              => 'default',
+						'meta'                => 'yes',
+						'meta_author'         => 'no',
+						'meta_categories'     => 'no',
+						'meta_comments'       => 'yes',
+						'meta_date'           => 'yes',
+						'meta_tags'           => 'no',
+						'number_posts'        => '4',
+						'offset'              => '',
+						'scrolling'           => 'no',
+						'strip_html'          => 'yes',
+						'title'               => 'yes',
+						'thumbnail'           => 'yes',
+						'animation_direction' => 'left',
+						'animation_speed'     => '',
+						'animation_type'      => '',
+						'animation_offset'    => $fusion_settings->get( 'animation_offset' ),
+					), $args
+				);
+
+				if ( '0' === $defaults['offset'] ) {
+					$defaults['offset'] = '';
+				}
+
+				if ( $defaults['columns'] > 6 ) {
+					$defaults['columns'] = 6;
+				}
+
+				$defaults['strip_html'] = ( 'yes' === $defaults['strip_html'] || 'true' === $defaults['strip_html'] ) ? true : false;
+
+				if ( $defaults['number_posts'] ) {
+					$defaults['posts_per_page'] = $defaults['number_posts'];
+				}
+
+				if ( '-1' === $defaults['number_posts'] ) {
+					$defaults['scrolling'] = 'no';
+				}
+
+				if ( $defaults['excerpt_length'] || '0' === $defaults['excerpt_length'] ) {
+					$defaults['excerpt_words'] = $defaults['excerpt_length'];
+				}
+				if ( 'tag' !== $defaults['pull_by'] ) {
+					// Check for cats to exclude; needs to be checked via exclude_cats param
+					// and '-' prefixed cats on cats param, exclution via exclude_cats param.
+					$cats_to_exclude = explode( ',', $defaults['exclude_cats'] );
+					if ( $cats_to_exclude ) {
+						foreach ( $cats_to_exclude as $cat_to_exclude ) {
+							$id_obj = get_category_by_slug( $cat_to_exclude );
+							if ( $id_obj ) {
+								$cats_id_to_exclude[] = $id_obj->term_id;
+							}
+						}
+						if ( isset( $cats_id_to_exclude ) && $cats_id_to_exclude ) {
+							$defaults['category__not_in'] = $cats_id_to_exclude;
+						}
+					}
+
+					// Setting up cats to be used and exclution using '-' prefix on cats param; transform slugs to ids.
+					$cat_ids = '';
+					$categories = explode( ',', $defaults['cat_slug'] );
+					if ( isset( $categories ) && $categories ) {
+						foreach ( $categories as $category ) {
+							if ( $category ) {
+								$cat_obj = get_category_by_slug( $category );
+								if ( isset( $cat_obj->term_id ) ) {
+									if ( 0 === strpos( $category, '-' ) ) {
+										// @codingStandardsIgnoreLine
+										$cat_ids .= '-' .$cat_obj->cat_ID . ',';
+									} else {
+										// @codingStandardsIgnoreLine
+										$cat_ids .= $cat_obj->cat_ID . ',';
+									}
+								}
+							}
+						}
+					}
+					$defaults['cat'] = substr( $cat_ids, 0, -1 ) . $defaults['cat_id'];
+				} else {
+					// Check for tags to exclude; needs to be checked via exclude_tags param
+					// and '-' prefixed tags on tags param exclusion via exclude_tags param.
+					$tags_to_exclude = explode( ',', $defaults['exclude_tags'] );
+					$tags_id_to_exclude = array();
+					if ( $tags_to_exclude ) {
+						foreach ( $tags_to_exclude as $tag_to_exclude ) {
+							// @codingStandardsIgnoreLine WordPress.VIP.RestrictedFunctions.get_term_by_get_term_by
+							$id_obj = get_term_by( 'slug', $tag_to_exclude, 'post_tag' );
+							if ( $id_obj ) {
+								$tags_id_to_exclude[] = $id_obj->term_id;
+							}
+						}
+						if ( $tags_id_to_exclude ) {
+							$defaults['tag__not_in'] = $tags_id_to_exclude;
+						}
+					}
+
+					// Setting up tags to be used.
+					$tag_ids = array();
+					if ( '' !== $defaults['tag_slug'] ) {
+						$tags = explode( ',', $defaults['tag_slug'] );
+						if ( isset( $tags ) && $tags ) {
+							foreach ( $tags as $tag ) {
+								// @codingStandardsIgnoreLine WordPress.VIP.RestrictedFunctions.get_term_by_get_term_by
+								$id_obj = get_term_by( 'slug', $tag, 'post_tag' );
+
+								if ( $id_obj ) {
+									$tag_ids[] = $id_obj->term_id;
+								}
+							}
+						}
+					}
+					$defaults['tag__in'] = $tag_ids;
+				}
+
+				$items = '';
+
+				$args = array(
+					'posts_per_page'      => $defaults['number_posts'],
+					'ignore_sticky_posts' => 1,
+				);
+
+				// Check if there is paged content.
+				$paged = ( get_query_var( 'paged' ) ) ? get_query_var( 'paged' ) : 1;
+				if ( is_front_page() ) {
+					$paged = ( get_query_var( 'page' ) ) ? get_query_var( 'page' ) : 1;
+				}
+				$args['paged'] = $paged;
+
+				if ( $defaults['offset'] ) {
+					$args['offset'] = $defaults['offset'] + ( $paged - 1 ) * $defaults['number_posts'];
+				}
+
+				if ( isset( $defaults['cat'] ) && $defaults['cat'] ) {
+					$args['cat'] = $defaults['cat'];
+				}
+
+				if ( isset( $defaults['category__not_in'] ) && is_array( $defaults['category__not_in'] ) ) {
+					$args['category__not_in'] = $defaults['category__not_in'];
+				}
+
+				if ( isset( $defaults['tag__in'] ) && $defaults['tag__in'] ) {
+					$args['tag__in'] = $defaults['tag__in'];
+				}
+
+				if ( isset( $defaults['tag__not_in'] ) && is_array( $defaults['tag__not_in'] ) ) {
+					$args['tag__not_in'] = $defaults['tag__not_in'];
+				}
+
+				extract( $defaults );
+
+				// Deprecated 5.2.1 hide value, mapped to no.
+				if ( 'hide' === $excerpt ) {
+					$excerpt = 'no';
+				}
+
+				$defaults['meta_author']     = ( 'yes' === $defaults['meta_author'] );
+				$defaults['meta_categories'] = ( 'yes' === $defaults['meta_categories'] );
+				$defaults['meta_comments']   = ( 'yes' === $defaults['meta_comments'] );
+				$defaults['meta_date']       = ( 'yes' === $defaults['meta_date'] );
+				$defaults['meta_tags']       = ( 'yes' === $defaults['meta_tags'] );
+
+				// Set the meta info settings for later use.
+				$this->meta_info_settings['post_meta']          = $defaults['meta'];
+				$this->meta_info_settings['post_meta_author']   = $defaults['meta_author'];
+				$this->meta_info_settings['post_meta_date']     = $defaults['meta_date'];
+				$this->meta_info_settings['post_meta_cats']     = $defaults['meta_categories'];
+				$this->meta_info_settings['post_meta_tags']     = $defaults['meta_tags'];
+				$this->meta_info_settings['post_meta_comments'] = $defaults['meta_comments'];
+
+				$this->args = $defaults;
+				$args['post_type'] = array('lp_lesson','lp_quiz');  //chenxin
+				$recent_posts = fusion_cached_query( $args );
+
+				$this->args['max_num_pages'] = $recent_posts->max_num_pages;
+
+				if ( ! $recent_posts->have_posts() ) {
+					return fusion_builder_placeholder( 'post', 'blog posts' );
+				}
+
+				while ( $recent_posts->have_posts() ) {
+					$recent_posts->the_post();
+
+					$attachment = $date_box = $slideshow = $slides = $content = '';
+
+					if ( 'date-on-side' == $layout ) {
+
+						switch ( get_post_format() ) {
+							case 'gallery':
+								$format_class = 'images';
+								break;
+							case 'link':
+								$format_class = 'link';
+								break;
+							case 'image':
+								$format_class = 'image';
+								break;
+							case 'quote':
+								$format_class = 'quotes-left';
+								break;
+							case 'video':
+								$format_class = 'film';
+								break;
+							case 'audio':
+								$format_class = 'headphones';
+								break;
+							case 'chat':
+								$format_class = 'bubbles';
+								break;
+							default:
+								$format_class = 'pen';
+								break;
+						}
+
+						$date_box = '<div ' . FusionBuilder::attributes( 'fusion-date-and-formats' ) . '><div ' . FusionBuilder::attributes( 'fusion-date-box updated' ) . '><span ' . FusionBuilder::attributes( 'fusion-date' ) . '>' . get_the_time( $fusion_settings->get( 'alternate_date_format_day' ) ) . '</span><span ' . FusionBuilder::attributes( 'fusion-month-year' ) . '>' . get_the_time( $fusion_settings->get( 'alternate_date_format_month_year' ) ) . '</span></div><div ' . FusionBuilder::attributes( 'fusion-format-box' ) . '><i ' . FusionBuilder::attributes( 'fusion-icon-' . $format_class ) . '></i></div></div>';
+					}
+
+					if ( 'yes' === $thumbnail && 'date-on-side' !== $layout && ! post_password_required( get_the_ID() ) ) {
+
+						if ( 'default' == $layout ) {
+							$image_size = 'recent-posts';
+						} elseif ( 'thumbnails-on-side' == $layout ) {
+							$image_size = 'portfolio-five';
+						}
+
+						$post_video = apply_filters( 'fusion_builder_post_video', get_the_ID() );
+
+						if ( has_post_thumbnail() || $post_video ) {
+							if ( $post_video ) {
+								$slides .= '<li><div ' . FusionBuilder::attributes( 'full-video' ) . '>' . $post_video . '</div></li>';
+							}
+
+							if ( has_post_thumbnail() ) {
+								$attachment_image   = wp_get_attachment_image_src( get_post_thumbnail_id(), $image_size );
+								$attachment_img_tag = wp_get_attachment_image( get_post_thumbnail_id(), $image_size );
+
+								$attachment_img_tag_custom = '<img src="' . $attachment_image[0] . '" alt="' . get_post_meta( get_post_thumbnail_id(), '_wp_attachment_image_alt', true ) . '" />';
+								$full_image = wp_get_attachment_image_src( get_post_thumbnail_id(), 'full' );
+								$attachment_data = wp_get_attachment_metadata( get_post_thumbnail_id() );
+								$attachment = get_post( get_post_thumbnail_id() );
+
+								$slides .= '<li><a href="' . get_permalink( get_the_ID() ) . '" ' . FusionBuilder::attributes( 'recentposts-shortcode-img-link' ) . '>' . $attachment_img_tag_custom . '</a></li>';
+							}
+
+							$i = 2;
+							$posts_slideshow_number = $fusion_settings->get( 'posts_slideshow_number' );
+							if ( '' === $posts_slideshow_number ) {
+								$posts_slideshow_number = 5;
+							}
+							while ( $i <= $posts_slideshow_number ) {
+
+								$attachment_new_id = false;
+
+								if ( function_exists( 'fusion_get_featured_image_id' ) && fusion_get_featured_image_id( 'featured-image-' . $i, 'post' ) ) {
+									$attachment_new_id = fusion_get_featured_image_id( 'featured-image-' . $i, 'post' );
+								}
+
+								if ( $attachment_new_id ) {
+									$attachment_image          = wp_get_attachment_image_src( $attachment_new_id, $image_size );
+									$attachment_img_tag        = wp_get_attachment_image( $attachment_new_id, $image_size );
+									$attachment_img_tag_custom = '<img src="' . $attachment_image[0] . '" alt="' . get_post_meta( $attachment_new_id, '_wp_attachment_image_alt', true ) . '" />';
+									$full_image      = wp_get_attachment_image_src( $attachment_new_id, 'full' );
+									$attachment_data = wp_get_attachment_metadata( $attachment_new_id );
+
+									$slides .= '<li><a href="' . get_permalink( get_the_ID() ) . '" ' . FusionBuilder::attributes( 'recentposts-shortcode-img-link' ) . '>' . $attachment_img_tag_custom . '</a></li>';
+								}
+								$i++;
+							}
+
+							$slideshow = '<div ' . FusionBuilder::attributes( 'recentposts-shortcode-slideshow' ) . '><ul ' . FusionBuilder::attributes( 'slides' ) . '>' . $slides . '</ul></div>';
+						}
+					}
+
+					if ( 'yes' == $title ) {
+						$content .= ( function_exists( 'fusion_builder_render_rich_snippets_for_pages' ) ) ? fusion_builder_render_rich_snippets_for_pages( false ) : '';
+						$entry_title = '';
+						if ( $fusion_settings->get( 'disable_date_rich_snippet_pages' ) && $fusion_settings->get( 'disable_rich_snippet_title' ) ) {
+							$entry_title = 'entry-title';
+						}
+						$content .= '<h4 class="' . $entry_title . '"><a href="' . get_permalink( get_the_ID() ) . '">' . get_the_title() . '</a></h4>';
+					} else {
+						$content .= fusion_builder_render_rich_snippets_for_pages();
+					}
+
+					if ( 'yes' == $meta ) {
+						$meta_data = fusion_builder_render_post_metadata( 'recent_posts', $this->meta_info_settings );
+						$content .= '<p ' . FusionBuilder::attributes( 'meta' ) . '>' . $meta_data . '</p>';
+					}
+
+					if ( 'yes' === $excerpt ) {
+						$content .= fusion_builder_get_post_content( '', 'yes', $excerpt_words, $strip_html );
+					} else if ( 'full' === $excerpt ) {
+						$content .= fusion_builder_get_post_content( '', 'no', $excerpt_words, $strip_html );
+					}
+
+					$items .= '<article ' . FusionBuilder::attributes( 'recentposts-shortcode-column' ) . '>' . $date_box . $slideshow . '<div ' . FusionBuilder::attributes( 'recentposts-shortcode-content' ) . '>' . $content . '</div></article>';
+				}
+
+				// Pagination is used.
+				$pagination = '';
+				if ( 'no' !== $this->args['scrolling'] ) {
+					$infinite_pagination = false;
+					if ( 'pagination' !== $this->args['scrolling'] ) {
+						$infinite_pagination = true;
+					}
+
+					$pagination = fusion_pagination( $recent_posts->max_num_pages, apply_filters( 'fusion_pagination_size', 1 ), $recent_posts, $infinite_pagination, true );
+
+					// If infinite scroll with "load more" button is used.
+					if ( 'load_more_button' === $this->args['scrolling'] && 1 < $recent_posts->max_num_pages ) {
+						$pagination .= '<div class="fusion-load-more-button fusion-blog-button fusion-clearfix">' . apply_filters( 'avada_load_more_posts_name', esc_attr__( 'Load More Posts', 'fusion-builder' ) ) . '</div>';
+					}
+				}
+
+				$html = '<div ' . FusionBuilder::attributes( 'recentposts-shortcode' ) . '><section ' . FusionBuilder::attributes( 'recentposts-shortcode-section' ) . '>' . $items . '</section>' . $pagination . '</div>';
+
+				wp_reset_postdata();
+
+				$this->recent_posts_counter++;
+
+				return $html;
+
+			}
+
+			/**
+			 * Builds the attributes array.
+			 *
+			 * @access public
+			 * @since 1.0
+			 * @return array
+			 */
+			public function attr() {
+
+				$attr = fusion_builder_visibility_atts(
+					$this->args['hide_on_mobile'], array(
+						'class' => 'fusion-recent-posts fusion-recent-posts-' . $this->recent_posts_counter . ' avada-container layout-' . $this->args['layout'] . ' layout-columns-' . $this->args['columns'],
+					)
+				);
+
+				if ( $this->args['content_alignment'] && 'default' === $this->args['layout'] ) {
+					$attr['class'] .= ' fusion-recent-posts-' . $this->args['content_alignment'];
+				}
+
+				if ( 'infinite' === $this->args['scrolling'] || 'load_more_button' === $this->args['scrolling'] ) {
+					$attr['class'] .= ' fusion-recent-posts-infinite';
+
+					$attr['data-pages'] = $this->args['max_num_pages'];
+				}
+
+				if ( 'load_more_button' === $this->args['scrolling'] ) {
+					$attr['class'] .= ' fusion-recent-posts-load-more';
+				}
+
+				if ( $this->args['class'] ) {
+					$attr['class'] .= ' ' . $this->args['class'];
+				}
+
+				if ( $this->args['id'] ) {
+					$attr['id'] = $this->args['id'];
+				}
+
+				return $attr;
+
+			}
+
+			/**
+			 * Builds the section attributes array.
+			 *
+			 * @access public
+			 * @since 1.0
+			 * @return array
+			 */
+			public function section_attr() {
+				$attr = array(
+					'class' => 'fusion-columns columns fusion-columns-' . $this->args['columns'] . ' columns-' . $this->args['columns'],
+				);
+
+				return $attr;
+			}
+
+			/**
+			 * Builds the column attributes array.
+			 *
+			 * @access public
+			 * @since 1.0
+			 * @return array
+			 */
+			public function column_attr() {
+
+				$columns = 3;
+				if ( $this->args['columns'] ) {
+					$columns = 12 / $this->args['columns'];
+				}
+
+				$attr = array(
+					'class' => 'post fusion-column column col col-lg-' . $columns . ' col-md-' . $columns . ' col-sm-' . $columns . '',
+					'style' => '',
+				);
+
+				if ( '5' == $this->args['columns'] ) {
+					$attr['class'] = 'post fusion-column column col-lg-2 col-md-2 col-sm-2';
+				}
+
+				if ( $this->args['animation_type'] ) {
+					$animations = FusionBuilder::animations(
+						array(
+							'type'      => $this->args['animation_type'],
+							'direction' => $this->args['animation_direction'],
+							'speed'     => $this->args['animation_speed'],
+							'offset'    => $this->args['animation_offset'],
+						)
+					);
+
+					$attr = array_merge( $attr, $animations );
+
+					$attr['class'] .= ' ' . $attr['animation_class'];
+					unset( $attr['animation_class'] );
+				}
+
+				return $attr;
+
+			}
+
+			/**
+			 * Builds the slideshow attributes array.
+			 *
+			 * @access public
+			 * @since 1.0
+			 * @return array
+			 */
+			public function slideshow_attr() {
+
+				$attr = array(
+					'class' => 'fusion-flexslider flexslider',
+				);
+
+				if ( 'thumbnails-on-side' == $this->args['layout'] ) {
+					$attr['class'] .= ' floated-slideshow';
+				}
+
+				if ( $this->args['hover_type'] ) {
+					$attr['class'] .= ' flexslider-hover-type-' . $this->args['hover_type'];
+				}
+
+				return $attr;
+
+			}
+
+			/**
+			 * Builds the image attributes array.
+			 *
+			 * @access public
+			 * @since 1.0
+			 * @param array $args The arguments array.
+			 * @return array
+			 */
+			public function img_attr( $args ) {
+
+				$attr = array(
+					'src' => $args['src'],
+				);
+
+				if ( $args['alt'] ) {
+					$attr['alt'] = $args['alt'];
+				}
+
+				return $attr;
+
+			}
+
+			/**
+			 * Builds the link attributes array.
+			 *
+			 * @access public
+			 * @since 1.0
+			 * @param array $args The arguments array.
+			 * @return array
+			 */
+			public function link_attr( $args ) {
+
+				$attr = array();
+
+				if ( $this->args['hover_type'] ) {
+					$attr['class'] = 'hover-type-' . $this->args['hover_type'];
+				}
+				$attr['aria-label'] = the_title_attribute( array( 'echo' => false ) );
+
+				return $attr;
+
+			}
+
+			/**
+			 * Builds the content wrapper attributes array.
+			 *
+			 * @access public
+			 * @since 1.5.2
+			 * @return array
+			 */
+			public function content_attr() {
+				$attr = array(
+					'class' => 'recent-posts-content',
+				);
+
+				return $attr;
+			}
+
+			/**
+			 * Builds the dynamic styling.
+			 *
+			 * @access public
+			 * @since 1.1
+			 * @return array
+			 */
+			public function add_styling() {
+
+				global $wp_version, $content_media_query, $six_fourty_media_query, $three_twenty_six_fourty_media_query, $ipad_portrait_media_query, $fusion_library, $fusion_settings, $dynamic_css_helpers;
+
+				$elements = array(
+					'.fusion-flexslider .flex-direction-nav .flex-prev',
+					'.fusion-flexslider .flex-direction-nav .flex-next',
+				);
+				$css['global'][ $dynamic_css_helpers->implode( $elements ) ]['background-color'] = $fusion_library->sanitize->color( $fusion_settings->get( 'carousel_nav_color' ) );
+
+				$elements = $dynamic_css_helpers->map_selector( $elements, ':hover' );
+				$css['global'][ $dynamic_css_helpers->implode( $elements ) ]['background-color'] = $fusion_library->sanitize->color( $fusion_settings->get( 'carousel_hover_color' ) );
+
+				return $css;
+			}
+
+			/**
+			 * Sets the necessary scripts.
+			 *
+			 * @access public
+			 * @since 1.5.2
+			 * @return void
+			 */
+			public function add_scripts() {
+
+				global $fusion_settings;
+
+				Fusion_Dynamic_JS::enqueue_script(
+					'fusion-recent-posts',
+					FusionBuilder::$js_folder_url . '/general/fusion-recent-posts.js',
+					FusionBuilder::$js_folder_path . '/general/fusion-recent-posts.js',
+					array( 'jquery' ),
+					'1',
+					true
+				);
+
+				Fusion_Dynamic_JS::localize_script(
+					'fusion-recent-posts',
+					'fusionRecentPostsVars',
+					array(
+						'infinite_loading_text'  => '<em>' . __( 'Loading the next set of posts...', 'fusion-builder' ) . '</em>',
+						'infinite_finished_msg'  => '<em>' . __( 'All items displayed.', 'fusion-builder' ) . '</em>',
+						'slideshow_autoplay'     => $fusion_settings->get( 'slideshow_autoplay' ) ? $fusion_settings->get( 'slideshow_autoplay' ) : false,
+						'slideshow_speed'        => $fusion_settings->get( 'slideshow_speed' ) ? (int) $fusion_settings->get( 'slideshow_speed' ) : 5000,
+						'pagination_video_slide' => $fusion_settings->get( 'pagination_video_slide' ) ? $fusion_settings->get( 'pagination_video_slide' ) : false,
+						'status_yt'              => $fusion_settings->get( 'status_yt' ) ? $fusion_settings->get( 'status_yt' ) : false,
+					)
+				);
+			}
+		}
+	}
+
+	new FusionSC_RecentPosts();
+
+}
+
 /**
- * Extra files & functions are hooked here.
+ * Map shortcode to Fusion Builder.
  *
- * Displays all of the head element and everything up until the "site-content" div.
- *
- * @package Avada
- * @subpackage Core
  * @since 1.0
  */
+function fusion_element_recent_posts() {
+	global $pagenow;
 
-// Do not allow directly accessing this file.
-if ( ! defined( 'ABSPATH' ) ) {
-	exit( 'Direct script access denied.' );
-}
-
-if ( ! defined( 'AVADA_VERSION' ) ) {
-	define( 'AVADA_VERSION', '5.5.2' );
-}
-
-/**
- * Include Fusion-Library.
- */
-include_once wp_normalize_path( get_template_directory() . '/includes/lib/fusion-library.php' );
-
-/**
- * Include the main Avada class.
- */
-include_once wp_normalize_path( get_template_directory() . '/includes/class-avada.php' );
-
-/**
- * Define basic properties in the Avada class.
- */
-Avada::$template_dir_path   = wp_normalize_path( get_template_directory() );
-Avada::$template_dir_url    = get_template_directory_uri();
-Avada::$stylesheet_dir_path = wp_normalize_path( get_stylesheet_directory() );
-Avada::$stylesheet_dir_url  = get_stylesheet_directory_uri();
-
-/**
- * Include the autoloader.
- */
-include_once Avada::$template_dir_path . '/includes/class-avada-autoload.php';
-
-/**
- * Instantiate the autoloader.
- */
-new Avada_Autoload();
-
-/**
- * Must-use Plugins.
- */
-include_once Avada::$template_dir_path . '/includes/plugins/multiple_sidebars.php';
-require_once Avada::$template_dir_path . '/includes/plugins/post-link-plus.php';
-
-/**
- * If Fusion-Builder is installed, add the options.
- */
-if ( ( defined( 'FUSION_BUILDER_PLUGIN_DIR' ) && is_admin() ) || ! is_admin() ) {
-	new Fusion_Builder_Redux_Options();
-}
-
-/**
- * Load Fusion functions and make them available for later usage.
- */
-require_once Avada::$template_dir_path . '/includes/fusion-functions.php';
-
-/**
- * Make sure the Fusion_Multilingual class has been instantiated.
- */
-if ( ! property_exists( $fusion_library, 'multilingual' ) || ! $fusion_library->multilingual ) {
-	$fusion_library->multilingual = new Fusion_Multilingual();
-}
-
-/**
- * Instantiates the Avada_Options class.
- */
-function avada_init_options() {
-	Avada::$options = Avada_Options::get_instance();
-}
-
-// When in the dashboard delay the instantiation of the Avada_Options class.
-// This helps put all sidebars (both default & custom) in the Theme Options panel.
-if ( is_admin() ) {
-	// Has to be widgets_init hook, as it is called before init with priority 1.
-	add_action( 'init', 'avada_init_options', 1 );
-} else {
-	avada_init_options();
-}
-
-/**
- * Instantiate Avada_Upgrade classes.
- * Don't instantiate the class when DOING_AJAX to avoid issues
- * with the WP HeartBeat API.
- */
-if ( ! fusion_doing_ajax() ) {
-	Avada_Upgrade::get_instance();
-}
-
-/**
- * Instantiates the Avada class.
- * Make sure the class is properly set-up.
- * The Avada class is a singleton
- * so we can directly access the one true Avada object using this function.
- *
- * @return object Avada
- */
-function Avada() {
-	return Avada::get_instance();
-}
-
-/**
- * Instantiate the Avada_Admin class.
- * We need this both in the front & back to make sure the admin menu is properly added.
- */
-new Avada_Admin();
-
-/**
- * Instantiate the Avada_Multiple_Featured_Images object.
- */
-new Avada_Multiple_Featured_Images();
-
-/**
- * Instantiate Avada_Sidebars.
- */
-new Avada_Sidebars();
-
-/**
- * Instantiate Avada_Admin_Notices.
- */
-new Avada_Admin_Notices();
-
-/**
- * Instantiate Avada_Widget_style.
- */
-new Avada_Widget_Style();
-
-/**
- * Instantiate Avada_Page_Options.
- */
-new Avada_Page_Options();
-
-/**
- * Instantiate Avada_Portfolio.
- * This is only needed on the frontend, doesn't do anything for the dashboard.
- */
-if ( ! is_admin() ) {
-	new Avada_Portfolio();
-}
-
-/**
- * Instantiate Avada_Social_Icons.
- * This is only needed on the frontend, doesn't do anything for the dashboard.
- */
-global $social_icons;
-if ( ! is_admin() ) {
-	$social_icons = new Avada_Social_Icons();
-}
-
-/**
- * Instantiate Avada_fonts.
- * Only do this while in the dashboard, not needed on the frontend.
- */
-if ( is_admin() ) {
-	new Avada_Fonts();
-}
-
-/**
- * Instantiate Avada_Scripts.
- */
-new Avada_Scripts();
-
-/**
- * Instantiate Avada_Layout_bbPress.
- * We only need to do this for the frontend, when bbPress is installed.
- */
-if ( ! is_admin() && class_exists( 'bbPress' ) ) {
-	new Avada_Layout_bbPress();
-}
-
-/**
- * Instantiate Avada_EventsCalendar
- * We only need to do this on the frontend if Events Calendar is installed or on customizer preview.
- */
-if ( ( ! is_admin() || is_customize_preview() ) && class_exists( 'Tribe__Events__Main' ) ) {
-	new Avada_EventsCalendar();
-}
-
-/**
- * Conditionally Instantiate Avada_AvadaRedux.
- */
-$load_avadaredux   = false;
-$load_avada_gfonts = true;
-if ( is_admin() && isset( $_GET['page'] ) && 'avada_options' === $_GET['page'] ) {
-	$load_avadaredux   = true;
-	$load_avada_gfonts = false;
-}
-$http_referer = ( isset( $_SERVER['HTTP_REFERER'] ) ) ? esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '';
-if ( false !== strpos( $http_referer, 'avada_options' ) ) {
-	$load_avadaredux   = true;
-	$load_avada_gfonts = true;
-}
-$avadaredux_export = ( isset( $_GET['action'] ) && 'fusionredux_link_options-fusion_options' === $_GET['action'] && isset( $_GET['secret'] ) && '' !== $_GET['secret'] ) ? true : false;
-if ( $avadaredux_export ) {
-	$load_avadaredux   = true;
-	$load_avada_gfonts = false;
-}
-
-if ( $load_avadaredux ) {
-	new Avada_AvadaRedux(
+	fusion_builder_map(
 		array(
-			'is_language_all'      => Avada::get_language_is_all(),
-			'option_name'          => Avada::get_option_name(),
-			'original_option_name' => Avada::get_original_option_name(),
-			'version'              => Avada()->get_theme_version(),
-			'textdomain'           => 'Avada',
-			'disable_dependencies' => (bool) ( '0' === Avada()->settings->get( 'dependencies_status' ) ),
-			'display_name'         => 'Avada',
-			'menu_title'           => __( 'Theme Options', 'Avada' ),
-			'page_title'           => __( 'Theme Options', 'Avada' ),
-			'global_variable'      => 'fusion_fusionredux_options',
-			'page_parent'          => 'themes.php',
-			'page_slug'            => 'avada_options',
-			'menu_type'            => 'submenu',
-			'page_permissions'     => 'edit_theme_options',
+			'name'       => esc_attr__( 'Recent Posts', 'fusion-builder' ),
+			'shortcode'  => 'fusion_recent_posts',
+			'icon'       => 'fusiona-feather',
+			'preview'    => FUSION_BUILDER_PLUGIN_DIR . 'inc/templates/previews/fusion-recent-posts-preview.php',
+			'preview_id' => 'fusion-builder-block-module-recent-posts-preview-template',
+			'params'     => array(
+				array(
+					'type'        => 'radio_button_set',
+					'heading'     => esc_attr__( 'Layout', 'fusion-builder' ),
+					'description' => esc_attr__( 'Select the layout for the element.', 'fusion-builder' ),
+					'param_name'  => 'layout',
+					'value'       => array(
+						'default'            => esc_attr__( 'Standard', 'fusion-builder' ),
+						'thumbnails-on-side' => esc_attr__( 'Thumbnails on Side', 'fusion-builder' ),
+						'date-on-side'       => esc_attr__( 'Date on Side', 'fusion-builder' ),
+					),
+					'default'     => 'default',
+				),
+				array(
+					'type'        => 'radio_button_set',
+					'heading'     => esc_attr__( 'Hover Type', 'fusion-builder' ),
+					'description' => esc_attr__( 'Select the hover effect type.', 'fusion-builder' ),
+					'param_name'  => 'hover_type',
+					'value'       => array(
+						'none'    => esc_attr__( 'None', 'fusion-builder' ),
+						'zoomin'  => esc_attr__( 'Zoom In', 'fusion-builder' ),
+						'zoomout' => esc_attr__( 'Zoom Out', 'fusion-builder' ),
+						'liftup'  => esc_attr__( 'Lift Up', 'fusion-builder' ),
+					),
+					'default'     => 'none',
+				),
+				array(
+					'type'        => 'range',
+					'heading'     => esc_attr__( 'Number of Columns', 'fusion-builder' ),
+					'description' => esc_attr__( 'Select the number of columns to display.', 'fusion-builder' ),
+					'param_name'  => 'columns',
+					'value'       => '3',
+					'min'         => '1',
+					'max'         => '6',
+					'step'        => '1',
+				),
+				array(
+					'type'        => 'range',
+					'heading'     => esc_attr__( 'Posts Per Page', 'fusion-builder' ),
+					'description' => esc_attr__( 'Select number of posts per page.  Set to -1 to display all.', 'fusion-builder' ),
+					'param_name'  => 'number_posts',
+					'value'       => '6',
+					'min'         => '-1',
+					'max'         => '25',
+					'step'        => '1',
+				),
+				array(
+					'type'        => 'range',
+					'heading'     => esc_attr__( 'Post Offset', 'fusion-builder' ),
+					'description' => esc_attr__( 'The number of posts to skip. ex: 1.', 'fusion-builder' ),
+					'param_name'  => 'offset',
+					'value'       => '0',
+					'min'         => '0',
+					'max'         => '25',
+					'step'        => '1',
+				),
+				array(
+					'type'        => 'radio_button_set',
+					'heading'     => esc_attr__( 'Pull Posts By', 'fusion-builder' ),
+					'description' => esc_attr__( 'Choose to show posts by category or tag.', 'fusion-builder' ),
+					'param_name'  => 'pull_by',
+					'default'     => 'category',
+					'value'       => array(
+						'category' => esc_attr__( 'Category', 'fusion-builder' ),
+						'tag'      => esc_attr__( 'Tag', 'fusion-builder' ),
+					),
+				),
+				array(
+					'type'        => 'multiple_select',
+					'heading'     => esc_attr__( 'Categories', 'fusion-builder' ),
+					'description' => esc_attr__( 'Select a category or leave blank for all.', 'fusion-builder' ),
+					'param_name'  => 'cat_slug',
+					'value'       => ( 'post.php' === $pagenow || 'post-new.php' === $pagenow ) ? fusion_builder_shortcodes_categories( 'category' ) : array(),
+					'default'     => '',
+					'dependency'  => array(
+						array(
+							'element'  => 'pull_by',
+							'value'    => 'tag',
+							'operator' => '!=',
+						),
+					),
+				),
+				array(
+					'type'        => 'multiple_select',
+					'heading'     => esc_attr__( 'Exclude Categories', 'fusion-builder' ),
+					'description' => esc_attr__( 'Select a category to exclude.', 'fusion-builder' ),
+					'param_name'  => 'exclude_cats',
+					'value'       => ( 'post.php' === $pagenow || 'post-new.php' === $pagenow ) ? fusion_builder_shortcodes_categories( 'category' ) : array(),
+					'default'     => '',
+					'dependency'  => array(
+						array(
+							'element'  => 'pull_by',
+							'value'    => 'tag',
+							'operator' => '!=',
+						),
+					),
+				),
+				array(
+					'type'        => 'multiple_select',
+					'heading'     => esc_attr__( 'Tags', 'fusion-builder' ),
+					'description' => esc_attr__( 'Select a tag or leave blank for all.', 'fusion-builder' ),
+					'param_name'  => 'tag_slug',
+					'value'       => ( 'post.php' === $pagenow || 'post-new.php' === $pagenow ) ? fusion_builder_shortcodes_tags( 'post_tag' ) : array(),
+					'default'     => '',
+					'dependency'  => array(
+						array(
+							'element'  => 'pull_by',
+							'value'    => 'category',
+							'operator' => '!=',
+						),
+					),
+				),
+				array(
+					'type'        => 'multiple_select',
+					'heading'     => esc_attr__( 'Exclude Tags', 'fusion-builder' ),
+					'description' => esc_attr__( 'Select a tag to exclude.', 'fusion-builder' ),
+					'param_name'  => 'exclude_tags',
+					'value'       => ( 'post.php' === $pagenow || 'post-new.php' === $pagenow ) ? fusion_builder_shortcodes_tags( 'post_tag' ) : array(),
+					'default'     => '',
+					'dependency'  => array(
+						array(
+							'element'  => 'pull_by',
+							'value'    => 'category',
+							'operator' => '!=',
+						),
+					),
+				),
+				array(
+					'type'        => 'radio_button_set',
+					'heading'     => esc_attr__( 'Show Thumbnail', 'fusion-builder' ),
+					'description' => esc_attr__( 'Display the post featured image.', 'fusion-builder' ),
+					'param_name'  => 'thumbnail',
+					'value'       => array(
+						'yes' => esc_attr__( 'Yes', 'fusion-builder' ),
+						'no'  => esc_attr__( 'No', 'fusion-builder' ),
+					),
+					'default'     => 'yes',
+					'dependency'  => array(
+						array(
+							'element'  => 'layout',
+							'value'    => 'date-on-side',
+							'operator' => '!=',
+						),
+					),
+				),
+				array(
+					'type'        => 'radio_button_set',
+					'heading'     => esc_attr__( 'Show Title', 'fusion-builder' ),
+					'description' => esc_attr__( 'Display the post title below the featured image.', 'fusion-builder' ),
+					'param_name'  => 'title',
+					'value'       => array(
+						'yes' => esc_attr__( 'Yes', 'fusion-builder' ),
+						'no'  => esc_attr__( 'No', 'fusion-builder' ),
+					),
+					'default'     => 'yes',
+				),
+				array(
+					'type'        => 'radio_button_set',
+					'heading'     => esc_attr__( 'Show Meta', 'fusion-builder' ),
+					'description' => esc_attr__( 'Choose to show all meta data.', 'fusion-builder' ),
+					'param_name'  => 'meta',
+					'value'       => array(
+						'yes' => esc_attr__( 'Yes', 'fusion-builder' ),
+						'no'  => esc_attr__( 'No', 'fusion-builder' ),
+					),
+					'default'     => 'yes',
+				),
+				array(
+					'type'        => 'radio_button_set',
+					'heading'     => esc_attr__( 'Show Author Name', 'fusion-builder' ),
+					'description' => esc_attr__( 'Choose to show the author.', 'fusion-builder' ),
+					'param_name'  => 'meta_author',
+					'default'     => 'no',
+					'value'       => array(
+						'yes' => esc_attr__( 'Yes', 'fusion-builder' ),
+						'no'  => esc_attr__( 'No', 'fusion-builder' ),
+					),
+					'dependency'  => array(
+						array(
+							'element'  => 'meta',
+							'value'    => 'yes',
+							'operator' => '==',
+						),
+					),
+				),
+				array(
+					'type'        => 'radio_button_set',
+					'heading'     => esc_attr__( 'Show Categories', 'fusion-builder' ),
+					'description' => esc_attr__( 'Choose to show the categories.', 'fusion-builder' ),
+					'param_name'  => 'meta_categories',
+					'default'     => 'no',
+					'value'       => array(
+						'yes' => esc_attr__( 'Yes', 'fusion-builder' ),
+						'no'  => esc_attr__( 'No', 'fusion-builder' ),
+					),
+					'dependency'  => array(
+						array(
+							'element'  => 'meta',
+							'value'    => 'yes',
+							'operator' => '==',
+						),
+					),
+				),
+				array(
+					'type'        => 'radio_button_set',
+					'heading'     => esc_attr__( 'Show Date', 'fusion-builder' ),
+					'description' => esc_attr__( 'Choose to show the date.', 'fusion-builder' ),
+					'param_name'  => 'meta_date',
+					'default'     => 'yes',
+					'value'       => array(
+						'yes' => esc_attr__( 'Yes', 'fusion-builder' ),
+						'no'  => esc_attr__( 'No', 'fusion-builder' ),
+					),
+					'dependency'  => array(
+						array(
+							'element'  => 'meta',
+							'value'    => 'yes',
+							'operator' => '==',
+						),
+					),
+				),
+				array(
+					'type'        => 'radio_button_set',
+					'heading'     => esc_attr__( 'Show Comment Count', 'fusion-builder' ),
+					'description' => esc_attr__( 'Choose to show the comments.', 'fusion-builder' ),
+					'param_name'  => 'meta_comments',
+					'default'     => 'yes',
+					'value'       => array(
+						'yes' => esc_attr__( 'Yes', 'fusion-builder' ),
+						'no'  => esc_attr__( 'No', 'fusion-builder' ),
+					),
+					'dependency'  => array(
+						array(
+							'element'  => 'meta',
+							'value'    => 'yes',
+							'operator' => '==',
+						),
+					),
+				),
+				array(
+					'type'        => 'radio_button_set',
+					'heading'     => esc_attr__( 'Show Tags', 'fusion-builder' ),
+					'description' => esc_attr__( 'Choose to show the tags.', 'fusion-builder' ),
+					'param_name'  => 'meta_tags',
+					'default'     => 'no',
+					'value'       => array(
+						'yes' => esc_attr__( 'Yes', 'fusion-builder' ),
+						'no'  => esc_attr__( 'No', 'fusion-builder' ),
+					),
+					'dependency'  => array(
+						array(
+							'element'  => 'meta',
+							'value'    => 'yes',
+							'operator' => '==',
+						),
+					),
+				),
+				array(
+					'type'        => 'radio_button_set',
+					'heading'     => esc_attr__( 'Content Alignment', 'fusion-builder' ),
+					'description' => esc_attr__( 'Select the alignment of contents.', 'fusion-builder' ),
+					'param_name'  => 'content_alignment',
+					'default'     => '',
+					'value'       => array(
+						''       => esc_attr__( 'Text Flow', 'fusion-builder' ),
+						'left'   => esc_attr__( 'Left', 'fusion-builder' ),
+						'center' => esc_attr__( 'Center', 'fusion-builder' ),
+						'right'  => esc_attr__( 'Right', 'fusion-builder' ),
+					),
+					'dependency'  => array(
+						array(
+							'element'  => 'layout',
+							'value'    => 'default',
+							'operator' => '==',
+						),
+					),
+				),
+				array(
+					'type'        => 'radio_button_set',
+					'heading'     => esc_attr__( 'Text display', 'fusion-builder' ),
+					'description' => esc_attr__( 'Choose to display the post excerpt.', 'fusion-builder' ),
+					'param_name'  => 'excerpt',
+					'value'   => array(
+						'yes'   => esc_attr__( 'Excerpt', 'fusion-builder' ),
+						'full'  => esc_attr__( 'Full Content', 'fusion-builder' ),
+						'no'    => esc_attr__( 'None', 'fusion-builder' ),
+					),
+					'default'     => 'yes',
+				),
+				array(
+					'type'        => 'range',
+					'heading'     => esc_attr__( 'Excerpt Length', 'fusion-builder' ),
+					'description' => esc_attr__( 'Insert the number of words/characters you want to show in the excerpt.', 'fusion-builder' ),
+					'param_name'  => 'excerpt_length',
+					'value'       => '35',
+					'min'         => '0',
+					'max'         => '500',
+					'step'        => '1',
+					'dependency'  => array(
+						array(
+							'element'  => 'excerpt',
+							'value'    => 'yes',
+							'operator' => '==',
+						),
+					),
+				),
+				array(
+					'type'        => 'radio_button_set',
+					'heading'     => esc_attr__( 'Strip HTML', 'fusion-builder' ),
+					'description' => esc_attr__( 'Strip HTML from the post excerpt.', 'fusion-builder' ),
+					'param_name'  => 'strip_html',
+					'value'       => array(
+						'yes' => esc_attr__( 'Yes', 'fusion-builder' ),
+						'no'  => esc_attr__( 'No', 'fusion-builder' ),
+					),
+					'default'     => 'yes',
+					'dependency'  => array(
+						array(
+							'element'  => 'excerpt',
+							'value'    => 'yes',
+							'operator' => '==',
+						),
+					),
+				),
+				array(
+					'type'        => 'radio_button_set',
+					'heading'     => esc_attr__( 'Pagination Type', 'fusion-builder' ),
+					'description' => esc_attr__( 'Choose the type of pagination.', 'fusion-builder' ),
+					'param_name'  => 'scrolling',
+					'default'     => 'no',
+					'value'       => array(
+						'no'               => esc_attr__( 'No Pagination', 'fusion-builder' ),
+						'pagination'       => esc_attr__( 'Pagination', 'fusion-builder' ),
+						'infinite'         => esc_attr__( 'Infinite Scrolling', 'fusion-builder' ),
+						'load_more_button' => esc_attr__( 'Load More Button', 'fusion-builder' ),
+					),
+				),
+				array(
+					'type'        => 'select',
+					'heading'     => esc_attr__( 'Animation Type', 'fusion-builder' ),
+					'description' => esc_attr__( 'Select the type of animation to use on the element.', 'fusion-builder' ),
+					'param_name'  => 'animation_type',
+					'value'       => fusion_builder_available_animations(),
+					'default'     => '',
+					'group'       => esc_attr__( 'Animation', 'fusion-builder' ),
+				),
+				array(
+					'type'        => 'radio_button_set',
+					'heading'     => esc_attr__( 'Direction of Animation', 'fusion-builder' ),
+					'description' => esc_attr__( 'Select the incoming direction for the animation.', 'fusion-builder' ),
+					'param_name'  => 'animation_direction',
+					'value'       => array(
+						'down'   => esc_attr__( 'Top', 'fusion-builder' ),
+						'right'  => esc_attr__( 'Right', 'fusion-builder' ),
+						'up'     => esc_attr__( 'Bottom', 'fusion-builder' ),
+						'left'   => esc_attr__( 'Left', 'fusion-builder' ),
+						'static' => esc_attr__( 'Static', 'fusion-builder' ),
+					),
+					'default'     => 'left',
+					'group'       => esc_attr__( 'Animation', 'fusion-builder' ),
+					'dependency'  => array(
+						array(
+							'element'  => 'animation_type',
+							'value'    => '',
+							'operator' => '!=',
+						),
+					),
+				),
+				array(
+					'type'        => 'range',
+					'heading'     => esc_attr__( 'Speed of Animation', 'fusion-builder' ),
+					'description' => esc_attr__( 'Type in speed of animation in seconds (0.1 - 1).', 'fusion-builder' ),
+					'param_name'  => 'animation_speed',
+					'min'         => '0.1',
+					'max'         => '1',
+					'step'        => '0.1',
+					'value'       => '0.3',
+					'group'       => esc_attr__( 'Animation', 'fusion-builder' ),
+					'dependency'  => array(
+						array(
+							'element'  => 'animation_type',
+							'value'    => '',
+							'operator' => '!=',
+						),
+					),
+				),
+				array(
+					'type'        => 'select',
+					'heading'     => esc_attr__( 'Offset of Animation', 'fusion-builder' ),
+					'description' => esc_attr__( 'Controls when the animation should start.', 'fusion-builder' ),
+					'param_name'  => 'animation_offset',
+					'value'       => array(
+						''                => esc_attr__( 'Default', 'fusion-builder' ),
+						'top-into-view'   => esc_attr__( 'Top of element hits bottom of viewport', 'fusion-builder' ),
+						'top-mid-of-view' => esc_attr__( 'Top of element hits middle of viewport', 'fusion-builder' ),
+						'bottom-in-view'  => esc_attr__( 'Bottom of element enters viewport', 'fusion-builder' ),
+					),
+					'default'     => '',
+					'group'       => esc_attr__( 'Animation', 'fusion-builder' ),
+					'dependency'  => array(
+						array(
+							'element'  => 'animation_type',
+							'value'    => '',
+							'operator' => '!=',
+						),
+					),
+				),
+				array(
+					'type'        => 'checkbox_button_set',
+					'heading'     => esc_attr__( 'Element Visibility', 'fusion-builder' ),
+					'param_name'  => 'hide_on_mobile',
+					'value'       => fusion_builder_visibility_options( 'full' ),
+					'default'     => fusion_builder_default_visibility( 'array' ),
+					'description' => esc_attr__( 'Choose to show or hide the element on small, medium or large screens. You can choose more than one at a time.', 'fusion-builder' ),
+				),
+				array(
+					'type'        => 'textfield',
+					'heading'     => esc_attr__( 'CSS Class', 'fusion-builder' ),
+					'description' => esc_attr__( 'Add a class to the wrapping HTML element.', 'fusion-builder' ),
+					'param_name'  => 'class',
+					'value'       => '',
+					'group'       => esc_attr__( 'General', 'fusion-builder' ),
+				),
+				array(
+					'type'        => 'textfield',
+					'heading'     => esc_attr__( 'CSS ID', 'fusion-builder' ),
+					'description' => esc_attr__( 'Add an ID to the wrapping HTML element.', 'fusion-builder' ),
+					'param_name'  => 'id',
+					'value'       => '',
+					'group'       => esc_attr__( 'General', 'fusion-builder' ),
+				),
+			),
 		)
 	);
 }
-if ( ! is_admin() && $load_avada_gfonts ) {
-	new Avada_Google_Fonts();
-}
-
-/*
- * Include the TGM configuration
- * We only need this while on the dashboard.
- */
-if ( is_admin() ) {
-	require_once Avada::$template_dir_path . '/includes/class-avada-tgm-plugin-activation.php';
-	require_once Avada::$template_dir_path . '/includes/avada-tgm.php';
-}
-
-/*
- * Include deprecated functions
- */
-require_once Avada::$template_dir_path . '/includes/deprecated.php';
-
-/**
- * Metaboxes
- */
-if ( is_admin() ) {
-	include_once Avada::$template_dir_path . '/includes/metaboxes/metaboxes.php';
-}
-
-/**
- * Instantiate the mega menu framework
- */
-$mega_menu_framework = new Avada_Megamenu_Framework();
-
-/**
- * Custom Functions
- */
-get_template_part( 'includes/custom_functions' );
-require_once Avada::$template_dir_path . '/includes/avada-functions.php';
-
-/**
- * WPML Config
- */
-if ( defined( 'ICL_SITEPRESS_VERSION' ) ) {
-	include_once Avada::$template_dir_path . '/includes/plugins/wpml.php';
-}
-
-/**
- * Include the importer
- */
-if ( is_admin() ) {
-	include Avada::$template_dir_path . '/includes/importer/importer.php';
-}
-
-/**
- * Load Woocommerce Configuraion.
- */
-if ( class_exists( 'WooCommerce' ) ) {
-	include_once Avada::$template_dir_path . '/includes/wc-functions.php';
-	global $avada_woocommerce;
-	$avada_woocommerce = new Avada_Woocommerce();
-}
-
-/**
- * The dynamic CSS.
- */
-require_once Avada::$template_dir_path . '/includes/dynamic_css.php';
-require_once Avada::$template_dir_path . '/includes/dynamic_css_helpers.php';
-global $avada_dynamic_css;
-$avada_dynamic_css = new Avada_Dynamic_CSS();
-
-// Load dynamic css for plugins.
-foreach ( glob( Avada::$template_dir_path . '/includes/typography/*.php', GLOB_NOSORT ) as $filename ) {
-	require_once wp_normalize_path( $filename );
-}
-
-/**
- * Set the $content_width global.
- */
-global $content_width;
-if ( ! is_admin() && ( ! isset( $content_width ) || empty( $content_width ) ) ) {
-	$content_width = (int) Avada()->layout->get_content_width();
-}
-
-/**
- * Font-Awesome icon handler.
- * Adds compatibility with order versions of FA icon names.
- *
- * @param  string $icon The icon-name.
- * @return  string
- */
-function avada_font_awesome_name_handler( $icon ) {
-	$old_icons = Fusion_Data::old_icons();
-
-	$fa_icon   = ( 'fa-' !== substr( $icon, 0, 3 ) && 'fa ' !== substr( $icon, 0, 3 ) ) ? 'fa-' . $icon : $icon;
-	if ( 'icon-' === substr( $icon, 0, 5 ) || 'fa=' !== substr( $icon, 0, 3 ) ) {
-		// Replace old prefix with new one.
-		$icon    = str_replace( 'icon-', 'fa-', $icon );
-		$fa_icon = ( 'fa-' !== substr( $icon, 0, 3 ) && 'fa ' !== substr( $icon, 0, 3 ) ) ? 'fa-' . $icon : $icon;
-		if ( array_key_exists( str_replace( 'fa-', '', $icon ), $old_icons ) ) {
-			$fa_icon = 'fa-' . $old_icons[ str_replace( 'fa-', '', $icon ) ];
-		}
-	}
-
-	if ( false === strpos( str_replace( ' fa-fw', '', trim( $fa_icon ) ), ' ' ) ) {
-		$fa_icon = ' fa ' . $fa_icon;
-	}
-
-	return $fa_icon;
-}
-
-/**
- * Adds a counter span element to links.
- *
- * @param string $links The links HTML string.
- */
-function avada_cat_count_span( $links ) {
-	preg_match_all( '#\((.*?)\)#', $links, $matches );
-	if ( ! empty( $matches ) ) {
-		$i = 0;
-		foreach ( $matches[0] as $val ) {
-			$links = str_replace( '</a> ' . $val, ' ' . $val . '</a>', $links );
-			$links = str_replace( '</a>&nbsp;' . $val, ' ' . $val . '</a>', $links );
-			$i++;
-		}
-	}
-	return $links;
-}
-add_filter( 'get_archives_link', 'avada_cat_count_span' );
-add_filter( 'wp_list_categories', 'avada_cat_count_span' );
-
-/**
- * Modify admin CSS.
- */
-function avada_custom_admin_styles() {
-	echo '<style type="text/css">.widget input { border-color: #DFDFDF !important; }</style>';
-}
-add_action( 'admin_head', 'avada_custom_admin_styles' );
-
-/**
- * Add admin messages.
- */
-function avada_admin_notice() {
-	?>
-
-	<?php if ( version_compare( PHP_VERSION, '5.3.0' ) < 0 && Avada_Admin_Notices::is_admin_notice_active( 'old-php-notice' ) ) : ?>
-		<div id="low-php-version-error" avada-data-dismissible="old-php-notice" class="notice notice-error is-dismissible">
-			<?php /* translators: Link to WordPress requirements page. */ ?>
-			<p><?php esc_attr_e( 'Your server runs an old version of PHP, below 5.3. To ensure optimal performance and security we strongly encourage you to update your system soon. Avada will require PHP 5.3 or higher when Avada 6.0 is released.', 'Avada' ); ?></p>
-		</div>
-	<?php endif; ?>
-
-	<?php if ( isset( $_GET['imported'] ) && 'success' === $_GET['imported'] ) : ?>
-		<div id="setting-error-settings_updated" class="updated settings-error">
-			<p><?php esc_attr_e( 'Sucessfully imported demo data!', 'Avada' ); ?></p>
-		</div>
-	<?php endif; ?>
-	<?php
-}
-add_action( 'admin_notices', 'avada_admin_notice' );
-
-/**
- * Ignore nag messages.
- */
-function avada_nag_ignore() {
-	global $current_user;
-	$user_id = $current_user->ID;
-
-	// If user clicks to ignore the notice, add that to their user meta.
-	if ( isset( $_GET['fusion_richedit_nag_ignore'] ) && '0' == $_GET['fusion_richedit_nag_ignore'] ) {
-		add_user_meta( $user_id, 'fusion_richedit_nag_ignore', 'true', true );
-	}
-
-	// If user clicks to ignore the notice, add that to their user meta.
-	if ( isset( $_GET['avada_uber_nag_ignore'] ) && '0' == $_GET['avada_uber_nag_ignore'] ) {
-		update_option( 'avada_ubermenu_notice', true );
-		update_option( 'avada_ubermenu_notice_hidden', true );
-		$referer = ( isset( $_SERVER['HTTP_REFERER'] ) ) ? esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '';
-		wp_safe_redirect( $referer );
-	}
-}
-add_action( 'admin_init', 'avada_nag_ignore' );
-
-if ( function_exists( 'rev_slider_shortcode' ) ) {
-	add_action( 'admin_init', 'avada_disable_revslider_notice' );
-	add_action( 'admin_init', 'avada_revslider_styles' );
-}
-
-/**
- * Disable revslider notice.
- */
-function avada_disable_revslider_notice() {
-	update_option( 'revslider-valid-notice', 'false' );
-}
-
-/**
- * Support email login on my account dropdown.
- */
-if ( isset( $_POST['fusion_woo_login_box'] ) && 'true' === $_POST['fusion_woo_login_box'] ) { // WPCS: CSRF ok.
-	add_filter( 'authenticate', 'avada_email_login_auth', 10, 3 );
-}
-
-/**
- * Allow loging-in via email.
- *
- * @param  object $user     The user.
- * @param  string $username The username.
- * @param  string $password The password.
- */
-function avada_email_login_auth( $user, $username, $password ) {
-	if ( is_a( $user, 'WP_User' ) ) {
-		return $user;
-	}
-
-	if ( ! empty( $username ) ) {
-		$username = str_replace( '&', '&amp;', stripslashes( $username ) );
-		$user = get_user_by( 'email', $username );
-		if ( isset( $user, $user->user_login, $user->user_status ) && 0 == (int) $user->user_status ) {
-			$username = $user->user_login;
-		}
-	}
-
-	return wp_authenticate_username_password( null, $username, $password );
-}
-
-/**
- * No redirect on woo my account dropdown login when it fails.
- */
-if ( isset( $_POST['fusion_woo_login_box'] ) && 'true' === $_POST['fusion_woo_login_box'] ) { // WPCS: CSRF ok.
-	add_action( 'init', 'avada_load_login_redirect_support' );
-}
-
-/**
- * Tweaks the login redirect for WooCommerce.
- */
-function avada_load_login_redirect_support() {
-	if ( class_exists( 'WooCommerce' ) ) {
-
-		// When on the my account page, do nothing.
-		if ( ! empty( $_POST['login'] ) ) {
-			if ( isset( $_POST['_wpnonce'] ) && ! empty( $_POST['_wpnonce'] ) ) {
-				$nonce = sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ); // WPCS: CSRF ok.
-				if ( wp_verify_nonce( $nonce, 'woocommerce-login' ) ) {
-					return;
-				}
-			}
-		}
-
-		add_action( 'login_redirect', 'avada_login_fail', 10, 3 );
-	}
-}
-
-/**
- * Avada Login Fail Test.
- *
- * @param  string $url     The URL.
- * @param  string $raw_url The Raw URL.
- * @param  string $user    User.
- * @return string
- */
-function avada_login_fail( $url = '', $raw_url = '', $user = '' ) {
-	if ( ! is_account_page() ) {
-
-		if ( isset( $_SERVER ) && isset( $_SERVER['HTTP_REFERER'] ) && esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) ) {
-			$referer_array = wp_parse_url( esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) );
-			$parsed_url    = ( isset( $_SERVER['SERVER_PORT'] ) ) ? wp_parse_url( esc_url_raw( wp_unslash( $_SERVER['SERVER_PORT'] ) ) ) : array(
-				'host' => '80',
-			);
-
-			// Make sure it works ok for ports other than 80.
-			$port = ( isset( $_SERVER['SERVER_PORT'] ) ) ? ':' . $parsed_url['host'] : ':80';
-			$port = ( ':80' === $port ) ? '' : $port;
-
-			// Make sure host doesn't have a trailing slash and append the port.
-			$host = untrailingslashit( $referer_array['host'] ) . $port;
-
-			// Make sure path has a slash at the beginning.
-			$path = $referer_array['path'];
-			if ( 0 !== strpos( $referer_array['path'], '/' ) ) {
-				$path = '/' . $referer_array['path'];
-			}
-
-			// Combine the above to a $referer.
-			if ( false !== strpos( $port, '443' ) ) {
-				$referer = 'https://' . $host . $path;
-			} else {
-				$referer = '//' . $host . $path;
-			}
-
-			// If there's a valid referrer, and it's not the default log-in screen.
-			if ( ! empty( $referer ) && ! strstr( $referer, 'wp-login' ) && ! strstr( $referer, 'wp-admin' ) ) {
-				if ( is_wp_error( $user ) ) {
-					// Let's append some information (login=failed) to the URL for the theme to use.
-					wp_safe_redirect(
-						add_query_arg(
-							array(
-								'login' => 'failed',
-							), $referer
-						)
-					);
-				} else {
-					wp_safe_redirect( $referer );
-				}
-				exit;
-			}
-		} // End if().
-		return $url;
-	} // End if().
-}
-
-/**
- * Show a shop page description on product archives.
- */
-function woocommerce_product_archive_description() {
-	if ( is_post_type_archive( 'product' ) && 0 == get_query_var( 'paged' ) ) {
-		$shop_page = get_post( fusion_wc_get_page_id( 'shop' ) );
-		if ( $shop_page ) {
-			$description = apply_filters( 'the_content', $shop_page->post_content );
-			if ( $description ) {
-				echo '<div class="post-content">' . $description . '</div>'; // WPCS: XSS ok.
-			}
-		}
-	}
-}
-
-/**
- * Layerslider API.
- */
-function avada_layerslider_ready() {
-	if ( class_exists( 'LS_Sources' ) ) {
-		LS_Sources::addSkins( Avada::$template_dir_path . '/includes/ls-skins' );
-	}
-	if ( defined( 'LS_PLUGIN_BASE' ) ) {
-		remove_action( 'after_plugin_row_' . LS_PLUGIN_BASE, 'layerslider_plugins_purchase_notice', 10, 3 );
-	}
-}
-add_action( 'layerslider_ready', 'avada_layerslider_ready' );
-
-/**
- * Istantiate the auto-patcher tool.
- */
-global $avada_patcher;
-$avada_patcher = new Fusion_Patcher(
-	array(
-		'context'     => 'avada',
-		'version'     => Avada::get_theme_version(),
-		'name'        => 'Avada',
-		'parent_slug' => 'avada',
-		'page_title'  => esc_attr__( 'Fusion Patcher', 'Avada' ),
-		'menu_title'  => esc_attr__( 'Fusion Patcher', 'Avada' ),
-		'classname'   => 'Avada',
-		'bundled'     => array(
-			'fusion-builder',
-			'fusion-core',
-			'fusion-white-label-branding',
-		),
-	)
-);
-
-/**
- * During updates sometimes there are changes that will break a site.
- * We're adding a maintenance page to make sure users don't see a broken site.
- * As soon as the update is complete the site automatically returns to normal mode.
- */
-$maintenance   = false;
-$users_message = esc_html__( 'Our site is currently undergoing scheduled maintenance. Please try again in a moment.', 'Avada' );
-// Check if we're currently update Avada.
-if ( Avada::$is_updating ) {
-	$maintenance   = true;
-	$admin_message = esc_html__( 'Currently updating the Avada Theme. Your site will be accessible once the update finishes', 'Avada' );
-}
-
-/**
- * Make sure that if the fusion-core plugin is activated,
- * it's at least version 2.0.
- */
-if ( class_exists( 'FusionCore_Plugin' ) ) {
-	$fc_version = FusionCore_Plugin::VERSION;
-	if ( version_compare( $fc_version, '2.0', '<' ) ) {
-		$maintenance   = true;
-		/* translators: The "follow this link" link. */
-		$admin_message = sprintf( esc_attr__( 'The Fusion-Core plugin needs to be updated before your site can exit maintenance mode. Please %s to update the plugin.', 'Avada' ), '<a href="' . admin_url( 'themes.php?page=install-required-plugins' ) . '" style="color:#0088cc;font-weight:bold;">' . esc_attr__( 'follow this link', 'Avada' ) . '</a>' );
-	}
-}
-
-/**
- * If we're on maintenance mode, show the screen.
- */
-if ( $maintenance ) {
-	new Avada_Maintenance( true, $users_message, $admin_message );
-}
-
-/**
- * Class for adding Avada specific data to builder.
- * These only affect the dashboard so are not needed when in the front-end.
- */
-if ( Avada_Helper::is_post_admin_screen() && defined( 'FUSION_BUILDER_PLUGIN_DIR' ) && ! fusion_doing_ajax() ) {
-	Fusion_Builder_Filters::get_instance();
-}
-
-/**
- * Add Fusion Builder Demos support.
- */
-add_theme_support( 'fusion-builder-demos' );
-
-/**
- * We will use builder options in Avada, no need for FB to instantiate redux.
- */
-add_theme_support( 'fusion-builder-options' );
-add_filter( 'fusion_options_label', 'avada_set_options_label' );
-add_filter( 'fusion_builder_options_url', 'avada_set_options_url' );
-
-
-/**
- * Sets options label.
- *
- * @since 5.1
- * @param string $label Label name of options page.
- * @return string
- */
-function avada_set_options_label( $label ) {
-	return esc_html( 'Theme Options', 'Avada' );
-}
-
-/**
- * Set options page URL.
- *
- * @since 5.1
- * @param string $url URL to the options page.
- * @return string
- */
-function avada_set_options_url( $url ) {
-	return admin_url( 'themes.php?page=avada_options' );
-}
-
-if ( Avada()->registration->is_registered() && Avada_Helper::is_post_admin_screen() && defined( 'FUSION_BUILDER_PLUGIN_DIR' ) && ( ! fusion_doing_ajax() || isset( $_POST['page_name'] ) ) ) {
-	$fusion_builder_demo_importer = new Fusion_Builder_Demos_Importer();
-}
-
-/**
- * Filter a sanitized key string.
- *
- * @since 5.0.2
- * @param string $key     Sanitized key.
- * @param string $raw_key The key prior to sanitization.
- * @return string
- */
-function avada_auto_update( $key, $raw_key ) {
-	return ( 'avada' === $key && 'Avada' === $raw_key ) ? $raw_key : $key;
-}
-
-/**
- * Check if doing an ajax theme update,
- * if so make sure Avada theme name is not changed to lowercase.
- */
-if ( fusion_doing_ajax() && isset( $_POST['action'] ) && 'update-theme' === $_POST['action'] ) {
-	add_filter( 'sanitize_key', 'avada_auto_update', 10, 2 );
-}
-
-require_once Avada::$template_dir_path . '/includes/plugins/jetpack/class-jetpack-user-agent.php';
-
-/**
- * Make sure language-all works correctly.
- * Uses Fusion_Multilingual action.
- *
- * @since 5.1
- */
-function avada_set_language_is_all() {
-	Avada::set_language_is_all( true );
-}
-add_action( 'fusion_library_set_language_is_all', 'avada_set_language_is_all' );
-
-/**
- * Include Fusion Builder shared options support.
- */
-if ( class_exists( 'FusionBuilder' ) ) {
-	include_once Avada::$template_dir_path . '/includes/fusion-shared-options.php';
-}
-
-/**
- * Reset all Fusion Caches.
- *
- * @since 5.1
- *
- * @param array $delete_cache An array of caches to delete.
- */
-function avada_reset_all_caches( $delete_cache = array() ) {
-	// Reset fusion-caches.
-	if ( ! class_exists( 'Fusion_Cache' ) ) {
-		include_once Avada::$template_dir_path . '/includes/lib/inc/class-fusion-cache.php';
-	}
-
-	$fusion_cache = new Fusion_Cache();
-	$fusion_cache->reset_all_caches( $delete_cache );
-
-	wp_cache_flush();
-}
-
-/**
- * Wrapper function for wp_doing_ajax, which was introduced in WP 4.7.
- *
- * @since 5.1.5
- */
-function fusion_doing_ajax() {
-	if ( function_exists( 'wp_doing_ajax' ) ) {
-		return wp_doing_ajax();
-	}
-
-	return defined( 'DOING_AJAX' ) && DOING_AJAX;
-}
-
-// WIP, please ignore below.
-if ( 'true' === get_option( 'avada_imported_demo' ) ) {
-	flush_rewrite_rules();
-	update_option( 'avada_imported_demo', 'false' );
-}
-
-/* Omit closing PHP tag to avoid "Headers already sent" issues. */
-
-//add by chenxin
-add_post_type_support( 'lp_course', 'wpcom-markdown' );
-add_post_type_support( 'lp_lesson', 'wpcom-markdown' );
-add_post_type_support( 'lp_order', 'wpcom-markdown' );
-add_post_type_support( 'lp_lesson', 'wpcom-markdown' );
-add_post_type_support( 'lp_question', 'wpcom-markdown' );
-add_post_type_support( 'lp_quiz', 'wpcom-markdown' );
-
-
-
-
+add_action( 'fusion_builder_before_init', 'fusion_element_recent_posts' );
