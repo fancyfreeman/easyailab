@@ -1,7 +1,20 @@
-https://viewer.easyailab.cn/url/www.easyailab.cn/courses/course_1278/source/exp01/intro_to_pandas.ipynb
+nbviewer的链接生成规范
+https://viewer.easyailab.cn/url/www.easyailab.cn/uh/master/courses/course_1278/source/Pandas入门/intro_to_pandas.ipynb?flush_cache=true
+https://viewer.easyailab.cn/url/www.easyailab.cn/uh/master/courses/course_1278/source//切割图片/splitimage.ipynb?flush_cache=true
+https://viewer.easyailab.cn/url/www.easyailab.cn/uh/master/courses/course_1278/source/TensorFlow编程基本概念/tensorflow_programming_concepts.ipynb?flush_cache=true
+https://hub.easyailab.cn/user/master/notebooks/courses/course_1278/source/TensorFlow%E7%BC%96%E7%A8%8B%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/tensorflow_programming_concepts.ipynb
 
+https://hub.easyailab.cn/user/master/notebooks/courses/course_1278/source/实验03_创建操控张量/creating_and_manipulating_tensors_1.ipynb
+
+https://viewer.easyailab.cn/url/www.easyailab.cn/uh/master/courses/course_1278/source/实验01_Pandas入门/intro_to_pandas.ipynb
+
+https://viewer.easyailab.cn/url/www.easyailab.cn/uh/master/courses/course_1278/source/使用说明/使用说明.ipynb
+?flush_cache=true 强制nbviewer刷新
 
 https://www.easyailab.cn/courses/course_1278/source/exp01/intro_to_pandas.ipynb
+
+
+<iframe src="https://viewer.easyailab.cn/url/www.easyailab.cn/uh/master/courses/course_1278/source/Pandas入门/intro_to_pandas.ipynb"></iframe>
 
 
 ./letsencrypt-auto certonly  --standalone -d www.easyailab.cn -d easyailab.cn -d hub.easyailab.cn -d viewer.easyailab.cn
@@ -40,4 +53,15 @@ where post_type='lp_course'
 grep -rnl "wordpress-logo.svg" *.css
 
 find -type f -name '*.css'|xargs grep -l 'wordpress-logo.svg'
+
+
+https://www.easyailab.cn/wp-content/uploads/fusion-styles/fusion-974.min.css?timestamp=1531015719&ver=4.9.7
+
+
+<h1>问题构建</h1>
+<iframe src="https://player.youku.com/embed/XMzY1NjkwNjE2NA==" width="800" height="450" frameborder="0" allowfullscreen="allowfullscreen">
+</iframe>
+
+
+
 
