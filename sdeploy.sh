@@ -18,7 +18,7 @@ cp ./wordpress/logo_black_font_H240.png     /home/wwwroot/default/wp-admin/image
 cp -rf ./wordpress/avada/google/s           /home/wwwroot/default/
 cp ./wordpress/avada/source/class-avada-google-fonts.php /home/wwwroot/default/wp-content/themes/Avada/includes/class-avada-google-fonts.php
 cp ./wordpress/avada/source/functions.php   /home/wwwroot/default/wp-content/themes/Avada/functions.php
-cp ./wordpress/avada/source/functions.php   /home/wwwroot/default/wp-content/plugins/fusion-builder/shortcodes/fusion-recent-posts.php
+cp ./wordpress/avada/source/fusion-recent-posts.php  /home/wwwroot/default/wp-content/plugins/fusion-builder/shortcodes/fusion-recent-posts.php
 
 #php
 cp ./php/config/php.ini      /usr/local/php/etc/php.ini
