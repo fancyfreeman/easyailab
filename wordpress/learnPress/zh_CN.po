@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Package Name\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-05-10 10:29+0700\n"
-"PO-Revision-Date: 2018-08-26 01:58+0800\n"
+"PO-Revision-Date: 2018-08-26 02:03+0800\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -7504,7 +7504,7 @@ msgstr ""
 #: templates/content-lesson/button-complete.php:46
 #: templates/content-quiz/buttons/complete.php:29
 msgid "Complete"
-msgstr ""
+msgstr "完成"
 
 #: templates/content-lesson/no-content.php:19
 msgid "Lesson content is empty."
@@ -7606,7 +7606,7 @@ msgstr ""
 
 #: templates/content-quiz/buttons/check.php:24
 msgid "Check"
-msgstr ""
+msgstr "答案"
 
 #: templates/content-quiz/buttons/complete.php:23
 msgid "confirm-complete-quiz"
@@ -7618,7 +7618,7 @@ msgstr ""
 
 #: templates/content-quiz/buttons/hint.php:21
 msgid "Hint"
-msgstr ""
+msgstr "提示"
 
 #: templates/content-quiz/buttons/nav.php:32
 msgctxt "quiz-question-navigation"
