@@ -12,8 +12,9 @@ https://viewer.easyailab.cn/url/www.easyailab.cn/uh/master/courses/course_1278/s
 ?flush_cache=true 强制nbviewer刷新
 
 https://www.easyailab.cn/courses/course_1278/source/exp01/intro_to_pandas.ipynb
+https://viewer.easyailab.cn/url/www.easyailab.cn/uh/master/courses/course_1278/source/实验03_创建操控张量/creating_and_manipulating_tensors.ipynb
 
-
+https://viewer.easyailab.cn/url/www.easyailab.cn/uh/master/courses/course_1278/source/实验04_广播机制/broadcasting.ipynb
 <iframe src="https://viewer.easyailab.cn/url/www.easyailab.cn/uh/master/courses/course_1278/source/Pandas入门/intro_to_pandas.ipynb"></iframe>
 
 
@@ -62,6 +63,25 @@ https://www.easyailab.cn/wp-content/uploads/fusion-styles/fusion-974.min.css?tim
 <iframe src="https://player.youku.com/embed/XMzY1NjkwNjE2NA==" width="800" height="450" frameborder="0" allowfullscreen="allowfullscreen">
 </iframe>
 
+<iframe src="https://v.qq.com/iframe/player.html?vid=w0746shgp0s&tiny=0&auto=0" width="800" height="450" frameborder="0" allowfullscreen="allowfullscreen">
+</iframe>
 
+<iframe frameborder="0" width="640" height="498" src="https://v.qq.com/iframe/player.html?vid=w0746shgp0s&tiny=0&auto=0" allowfullscreen></iframe>
+
+<iframe frameborder="0" width="640" height="498" src="https://v.qq.com/iframe/player.html?vid=n0747s9i7ob&tiny=0&auto=0" allowfullscreen></iframe>
+
+
+
+
+<iframe frameborder="0" width="640" height="498" src="https://v.qq.com/iframe/player.html?vid=v0747q2gqhi&tiny=0&auto=0" allowfullscreen></iframe>
+
+
+
+.lp_course-template-default.single.single-lp_course.postid-1278.Avada.learnpress.learnpress-page.fusion-image-hovers.fusion-body.ltr.fusion-sticky-header.no-tablet-sticky-header.no-mobile-sticky-header.no-mobile-slidingbar.no-mobile-totop.mobile-logo-pos-left.layout-wide-mode.fusion-top-header.menu-text-align-center.mobile-menu-design-modern.fusion-show-pagination-text.fusion-header-layout-v1.avada-responsive.avada-footer-fx-none.fusion-search-form-classic.fusion-avatar-square.course-item-popup.viewing-course-item.viewing-course-item-1760.course-item-lp_lesson.do-animate
+
+
+    if(!is_page(get_the_ID('ABOUT'))) { 
+        wp_head(); 
+     }
 
 
