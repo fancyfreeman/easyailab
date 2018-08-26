@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Package Name\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-05-10 10:29+0700\n"
-"PO-Revision-Date: 2018-08-26 21:51+0800\n"
+"PO-Revision-Date: 2018-08-26 21:53+0800\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1467,25 +1467,25 @@ msgstr[0] "%d 个问题"
 #, php-format
 msgctxt "duration"
 msgid "%s day"
-msgstr ""
+msgstr "%s 天"
 
 #: inc/lp-template-functions.php:3211
 #, php-format
 msgctxt "duration"
 msgid "%s hour"
-msgstr ""
+msgstr "%s 小时"
 
 #: inc/lp-template-functions.php:3212
 #, php-format
 msgctxt "duration"
 msgid "%s min"
-msgstr ""
+msgstr "%s 分钟"
 
 #: inc/lp-template-functions.php:3213
 #, php-format
 msgctxt "duration"
 msgid "%s sec"
-msgstr ""
+msgstr "%s 秒"
 
 #: inc/lp-template-functions.php:3225 inc/course/lp-course-functions.php:757
 msgid "Edit this item"
