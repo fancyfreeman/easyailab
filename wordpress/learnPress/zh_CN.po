@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Package Name\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-05-10 10:29+0700\n"
-"PO-Revision-Date: 2018-08-26 21:47+0800\n"
+"PO-Revision-Date: 2018-08-26 21:50+0800\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -8010,7 +8010,7 @@ msgstr ""
 
 #: templates/single-course/content-item/header.php:24
 msgid "Search item"
-msgstr ""
+msgstr "搜索"
 
 #: templates/single-course/content-item/header.php:36
 msgid "Back to Course"
