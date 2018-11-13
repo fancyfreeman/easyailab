@@ -105,7 +105,9 @@ if ( fusion_is_element_enabled( 'fusion_recent_posts' ) ) {
 						'animation_speed'     => '',
 						'animation_type'      => '',
 						'animation_offset'    => $fusion_settings->get( 'animation_offset' ),
-					), $args
+					),
+					$args,
+					'fusion_recent_posts'
 				);
 
 				if ( '0' === $defaults['offset'] ) {
@@ -172,7 +174,6 @@ if ( fusion_is_element_enabled( 'fusion_recent_posts' ) ) {
 					$tags_id_to_exclude = array();
 					if ( $tags_to_exclude ) {
 						foreach ( $tags_to_exclude as $tag_to_exclude ) {
-							// @codingStandardsIgnoreLine WordPress.VIP.RestrictedFunctions.get_term_by_get_term_by
 							$id_obj = get_term_by( 'slug', $tag_to_exclude, 'post_tag' );
 							if ( $id_obj ) {
 								$tags_id_to_exclude[] = $id_obj->term_id;
@@ -189,7 +190,6 @@ if ( fusion_is_element_enabled( 'fusion_recent_posts' ) ) {
 						$tags = explode( ',', $defaults['tag_slug'] );
 						if ( isset( $tags ) && $tags ) {
 							foreach ( $tags as $tag ) {
-								// @codingStandardsIgnoreLine WordPress.VIP.RestrictedFunctions.get_term_by_get_term_by
 								$id_obj = get_term_by( 'slug', $tag, 'post_tag' );
 
 								if ( $id_obj ) {
@@ -257,7 +257,7 @@ if ( fusion_is_element_enabled( 'fusion_recent_posts' ) ) {
 				$this->meta_info_settings['post_meta_comments'] = $defaults['meta_comments'];
 
 				$this->args = $defaults;
-				$args['post_type'] = array('lp_lesson','lp_quiz');  //chenxin
+                                $args['post_type'] = array('lp_lesson','lp_quiz');  //chenxin
 				$recent_posts = fusion_cached_query( $args );
 
 				$this->args['max_num_pages'] = $recent_posts->max_num_pages;
@@ -392,7 +392,7 @@ if ( fusion_is_element_enabled( 'fusion_recent_posts' ) ) {
 						$infinite_pagination = true;
 					}
 
-					$pagination = fusion_pagination( $recent_posts->max_num_pages, apply_filters( 'fusion_pagination_size', 1 ), $recent_posts, $infinite_pagination, true );
+					$pagination = fusion_pagination( $recent_posts->max_num_pages, $fusion_settings->get( 'pagination_range' ), $recent_posts, $infinite_pagination, true );
 
 					// If infinite scroll with "load more" button is used.
 					if ( 'load_more_button' === $this->args['scrolling'] && 1 < $recent_posts->max_num_pages ) {
@@ -420,7 +420,8 @@ if ( fusion_is_element_enabled( 'fusion_recent_posts' ) ) {
 			public function attr() {
 
 				$attr = fusion_builder_visibility_atts(
-					$this->args['hide_on_mobile'], array(
+					$this->args['hide_on_mobile'],
+					array(
 						'class' => 'fusion-recent-posts fusion-recent-posts-' . $this->recent_posts_counter . ' avada-container layout-' . $this->args['layout'] . ' layout-columns-' . $this->args['columns'],
 					)
 				);
